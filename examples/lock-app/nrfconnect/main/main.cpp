@@ -24,6 +24,8 @@
 #include <BuildConfig.h>
 #include <platform/CHIPDeviceLayer.h>
 
+#include <string.h>
+
 LOG_MODULE_REGISTER(app);
 
 using namespace ::chip;
@@ -52,6 +54,7 @@ int main()
         goto exit;
     }
 
+#if CHIP_DEVICE_CONFIG_ENABLE_THREAD
     LOG_INF("Init Thread stack");
     ret = ThreadStackMgr().InitThreadStack();
     if (ret != CHIP_NO_ERROR)
@@ -59,6 +62,7 @@ int main()
         LOG_ERR("ThreadStackMgr().InitThreadStack() failed");
         goto exit;
     }
+#endif
 
     ret = GetAppTask().StartApp();
 

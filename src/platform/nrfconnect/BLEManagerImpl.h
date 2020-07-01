@@ -24,9 +24,13 @@
 #ifndef BLE_MANAGER_IMPL_H
 #define BLE_MANAGER_IMPL_H
 
-#include <support/logging/CHIPLogging.h>
-
 #if CHIP_DEVICE_CONFIG_ENABLE_CHIPOBLE
+
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/conn.h>
+#include <bluetooth/gatt.h>
+
+#include <support/logging/CHIPLogging.h>
 
 namespace chip {
 namespace DeviceLayer {
@@ -37,17 +41,11 @@ using namespace chip::Ble;
 /**
  * Concrete implementation of the NetworkProvisioningServer singleton object for the Zephyr platforms.
  */
-class BLEManagerImpl final : public BLEManager
+class BLEManagerImpl final : public BLEManager, private BleLayer, private BlePlatformDelegate, private BleApplicationDelegate
 {
     // Allow the BLEManager interface class to delegate method calls to
     // the implementation methods provided by this class.
     friend BLEManager;
-
-public:
-    // ===== Platform-specific members available for use by the application.
-
-    uint8_t GetAdvertisingHandle(void);
-    void SetAdvertisingHandle(uint8_t handle);
 
 private:
     // ===== Members that implement the BLEManager internal interface.
@@ -101,28 +99,37 @@ private:
             0x0010, /**< The advertising state/configuration has changed, but the SoftDevice has yet to be updated. */
     };
 
-    enum
-    {
-        kMaxConnections             = 1,
-        kMaxDeviceNameLength        = 20, // TODO: right-size this
-        kMaxAdvertismentDataSetSize = 31  // TODO: verify this
-    };
+    uint16_t mFlags;
+    uint16_t mGAPConns;
+    CHIPoBLEServiceMode mServiceMode;
+    bool mSubscribedConns[CONFIG_BT_MAX_CONN];
+    bt_gatt_indicate_params mIndicateParams[CONFIG_BT_MAX_CONN];
+    bt_conn_cb mConnCallbacks;
 
     void DriveBLEState(void);
     CHIP_ERROR ConfigureAdvertising(void);
     CHIP_ERROR StartAdvertising(void);
     CHIP_ERROR StopAdvertising(void);
-    void HandleSoftDeviceBLEEvent(const ChipDeviceEvent * event);
     CHIP_ERROR HandleGAPConnect(const ChipDeviceEvent * event);
     CHIP_ERROR HandleGAPDisconnect(const ChipDeviceEvent * event);
     CHIP_ERROR HandleRXCharWrite(const ChipDeviceEvent * event);
     CHIP_ERROR HandleTXCharCCCDWrite(const ChipDeviceEvent * event);
     CHIP_ERROR HandleTXComplete(const ChipDeviceEvent * event);
-    CHIP_ERROR SetSubscribed(uint16_t conId);
-    bool UnsetSubscribed(uint16_t conId);
-    bool IsSubscribed(uint16_t conId);
+    bool IsSubscribed(bt_conn * conn);
+    bool SetSubscribed(bt_conn * conn);
+    bool UnsetSubscribed(bt_conn * conn);
 
     static void DriveBLEState(intptr_t arg);
+
+    // Below callbacks run from the system workqueue context and have a limited stack capacity.
+    static void HandleTXIndicated(bt_conn * conn, const bt_gatt_attr * attr, u8_t err);
+    static void HandleConnect(bt_conn * conn, u8_t err);
+    static void HandleDisconnect(bt_conn * conn, u8_t reason);
+
+public:
+    // Below callbacks are public to be visible from the global scope.
+    static ssize_t HandleRXWrite(bt_conn * conn, const bt_gatt_attr * attr, const void * buf, u16_t len, u16_t offset, u8_t flags);
+    static ssize_t HandleTXCCCWrite(bt_conn * conn, const bt_gatt_attr * attr, u16_t value);
 };
 
 /**
@@ -147,17 +154,6 @@ inline BLEManagerImpl & BLEMgrImpl(void)
     return BLEManagerImpl::sInstance;
 }
 
-inline uint8_t BLEManagerImpl::GetAdvertisingHandle(void)
-{
-    ChipLogError(DeviceLayer, "%s: NOT IMPLEMENTED", __PRETTY_FUNCTION__);
-    return 0;
-}
-
-inline void BLEManagerImpl::SetAdvertisingHandle(uint8_t handle)
-{
-    ChipLogError(DeviceLayer, "%s: NOT IMPLEMENTED", __PRETTY_FUNCTION__);
-}
-
 inline BleLayer * BLEManagerImpl::_GetBleLayer() const
 {
     return (BleLayer *) (this);
@@ -165,26 +161,22 @@ inline BleLayer * BLEManagerImpl::_GetBleLayer() const
 
 inline BLEManager::CHIPoBLEServiceMode BLEManagerImpl::_GetCHIPoBLEServiceMode(void)
 {
-    ChipLogError(DeviceLayer, "%s: NOT IMPLEMENTED", __PRETTY_FUNCTION__);
-    return CHIPoBLEServiceMode::kCHIPoBLEServiceMode_NotSupported;
+    return mServiceMode;
 }
 
 inline bool BLEManagerImpl::_IsAdvertisingEnabled(void)
 {
-    ChipLogError(DeviceLayer, "%s: NOT IMPLEMENTED", __PRETTY_FUNCTION__);
-    return false;
+    return GetFlag(mFlags, kFlag_AdvertisingEnabled);
 }
 
 inline bool BLEManagerImpl::_IsFastAdvertisingEnabled(void)
 {
-    ChipLogError(DeviceLayer, "%s: NOT IMPLEMENTED", __PRETTY_FUNCTION__);
-    return false;
+    return GetFlag(mFlags, kFlag_FastAdvertisingEnabled);
 }
 
 inline bool BLEManagerImpl::_IsAdvertising(void)
 {
-    ChipLogError(DeviceLayer, "%s: NOT IMPLEMENTED", __PRETTY_FUNCTION__);
-    return false;
+    return GetFlag(mFlags, kFlag_Advertising);
 }
 
 } // namespace Internal
