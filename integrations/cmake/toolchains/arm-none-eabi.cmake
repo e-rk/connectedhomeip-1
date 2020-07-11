@@ -20,18 +20,21 @@
 #      This file is the CHIP SDK CMake template for defining the arm-none-eabi toolchain.
 #
 
-include (CMakeForceCompiler)
-
-# We are cross compiling so we don't want compiler tests to run, as they will fail
-set(CMAKE_CROSSCOMPILING    1)
-
 set(CMAKE_SYSTEM_NAME       Generic)
 set(CMAKE_SYSTEM_PROCESSOR  ARM)
 
-set(ARM_GCC_INSTALL_ROOT    $ENV{ARM_GCC_INSTALL_ROOT})
-set(CROSSCOMPILE_PREFIX     "${ARM_GCC_INSTALL_ROOT}/arm-none-eabi-")
+set(ARM_GCC_INSTALL_ROOT    "$ENV{ARM_GCC_INSTALL_ROOT}"    CACHE INTERNAL "ARM GCC toolchain install root")
+set(TARGET_TRIPLET          "arm-none-eabi"                 CACHE INTERNAL "Target triplet")
 
-set(CMAKE_C_COMPILER        "${CROSSCOMPILE_PREFIX}gcc")
-set(CMAKE_CXX_COMPILER      "${CROSSCOMPILE_PREFIX}g++")
-set(CMAKE_ASM_COMPILER      "${CROSSCOMPILE_PREFIX}gcc")   # Pass: -x assembler-with-cpp
-set(CMAKE_LINKER            "${CROSSCOMPILE_PREFIX}g++")   # Always link C++ with g++ rather than gcc or ld
+set(CMAKE_C_COMPILER        "${ARM_GCC_INSTALL_ROOT}${TARGET_TRIPLET}-gcc")
+set(CMAKE_CXX_COMPILER      "${ARM_GCC_INSTALL_ROOT}${TARGET_TRIPLET}-g++")
+set(CMAKE_ASM_COMPILER      "${ARM_GCC_INSTALL_ROOT}${TARGET_TRIPLET}-gcc")   # Pass: -x assembler-with-cpp
+set(CMAKE_LINKER            "${ARM_GCC_INSTALL_ROOT}${TARGET_TRIPLET}-g++")   # Always link C++ with g++ rather than gcc or ld
+
+# --specs is needed to pass toolchain checks. It can be overwritten later.
+set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs" CACHE INTERNAL "Linker flags")
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
