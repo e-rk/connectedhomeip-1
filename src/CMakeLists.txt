@@ -30,11 +30,8 @@ add_subdirectory(lib)
 add_subdirectory(lwip)
 add_subdirectory(system)
 add_subdirectory(transport)
-
-if(CONFIG_DEVICE_LAYER)
 add_subdirectory(platform)
-endif()
-
-if(CHIP_TARGET_STYLE_UNIX)
 add_subdirectory(setup_payload)
-endif()
+add_subdirectory(qrcodetool)
+
+chip_add_core_include(${CMAKE_CURRENT_SOURCE_DIR})

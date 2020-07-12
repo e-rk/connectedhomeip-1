@@ -31,12 +31,12 @@ target_include_directories(BleLayerTests PUBLIC
     ${NLUNIT_TEST_INCLUDES}
 )
 
-target_link_libraries(BleLayerTests PUBLIC 
+target_link_libraries(BleLayerTests PUBLIC
     BleLayer
     SupportLayer
     nlunit-test
     ${CHIP_PLATFORM_LIBS}
-    chip-config
+    # chip-config
 )
 
 target_link_directories(BleLayerTests PUBLIC
@@ -45,10 +45,5 @@ target_link_directories(BleLayerTests PUBLIC
 
 #### TestBleErrorStr
 
-add_executable(TestBleErrorStr
-    TestBleErrorStrDriver.cpp
-)
-
+chip_add_test(NAME TestBleErrorStr COMMAND TestBleErrorStr)
 target_link_libraries(TestBleErrorStr PRIVATE BleLayerTests)
-add_test(NAME TestBleErrorStr COMMAND TestBleErrorStr)
-add_dependencies(check TestBleErrorStr)

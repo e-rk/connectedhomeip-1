@@ -23,3 +23,5 @@
 add_subdirectory(core)
 add_subdirectory(shell)
 add_subdirectory(support)
+
+chip_add_core_include(${CMAKE_CURRENT_SOURCE_DIR})

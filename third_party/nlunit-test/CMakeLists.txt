@@ -25,15 +25,14 @@ if (BUILD_EXTERNALS_WITH_CMAKE)
 #
 # Build external project with cmake
 #
-add_library(nlunit-test
+add_library(nlunit-test STATIC EXCLUDE_FROM_ALL
     repo/src/nlunit-test.c
 )
-
 target_include_directories(nlunit-test PUBLIC
     repo/src
 )
 
-target_link_libraries(nlunit-test PRIVATE chip-config)
+# target_link_libraries(nlunit-test PRIVATE chip-config)
 
 else (BUILD_EXTERNALS_WITH_CMAKE)
 

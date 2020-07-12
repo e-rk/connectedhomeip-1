@@ -20,68 +20,28 @@
 #      This file is the CMake template for the nlfaultinjection library.
 #
 
-if (BUILD_EXTERNALS_WITH_CMAKE)
+chip_add_extra_library(nlfaultinjection)
 
-#
-# Build external project with cmake
-#
-add_library(nlfaultinjection
+target_sources(nlfaultinjection INTERFACE
     repo/src/nlfaultinjection.cpp
 )
-
 target_include_directories(nlfaultinjection
-  PUBLIC
+INTERFACE
     repo/include
-    ${PROJECT_SOURCE_DIR}/third_party/nlassert/repo/include
 )
+target_compile_definitions(nlfaultinjection INTERFACE CHIP_WITH_NLFAULTINJECTION=1)
 
-target_link_libraries(nlfaultinjection PRIVATE chip-config)
-
-#### tests common
-
-set(TEST_COMMON_INCLUDES
-    repo/include
-    ${PROJECT_SOURCE_DIR}/third_party/nlunit-test/repo/src
-)
+if (BUILD_TESTING)
+#### Tests common
 
 set(TEST_COMMON_LIBS
     nlfaultinjection
     nlunit-test
-    ${CHIP_PLATFORM_LIBS}
-    chip-config
 )
 
 #### TestFaultInjection
 
-add_executable(TestFaultInjection
-    repo/tests/TestFaultInjection.cpp
-)
-
-target_include_directories(TestFaultInjection PRIVATE ${TEST_COMMON_INCLUDES})
+chip_add_test(TestFaultInjection repo/tests/TestFaultInjection.cpp)
 target_link_libraries(TestFaultInjection PRIVATE ${TEST_COMMON_LIBS})
-target_link_directories(TestFaultInjection PRIVATE ${COMMON_LDPATH})
-add_test(NAME TestFaultInjection COMMAND TestFaultInjection)
-add_dependencies(check TestFaultInjection)
 
-else (BUILD_EXTERNALS_WITH_CMAKE)
-
-#
-# Build external project with autotools
-#
-project(nlfaultinjection)
-ExternalProject_Add(nlfaultinjection
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/repo
-    CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/repo/configure --prefix=<INSTALL_DIR>
-    BUILD_COMMAND make
-)
-add_test(NAME nlfaultinjection-check
-    COMMAND make check
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/third_party/nlfaultinjection/nlfaultinjection-prefix/src/nlfaultinjection-build
-)
-
-set(NLFAULT_INJECTION_INCLUDES "${CMAKE_BINARY_DIR}/third_party/nlfaultinjection/nlfaultinjection-prefix/include" 
-    CACHE PATH "Module nlfaultinjection include paths")
-set(NLFAULT_INJECTION_LDPATH "${CMAKE_BINARY_DIR}/third_party/nlfaultinjection/nlfaultinjection-prefix/lib" 
-    CACHE PATH "Module nlfaultinjection library paths")
-
-endif (BUILD_EXTERNALS_WITH_CMAKE)
+endif (BUILD_TESTING)

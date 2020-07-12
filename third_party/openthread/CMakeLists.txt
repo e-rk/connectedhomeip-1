@@ -17,20 +17,12 @@
 
 #
 #    Description:
-#      This file is the CMake template for the CHIP SDK QR code library.
+#      CMake integration with the OpenThread stack.
 #
 
-add_subdirectory(tests)
+if (CHIP_ENABLE_OPENTHREAD_INTERNAL)
 
-chip_add_extra_library(SetupPayload)
-target_sources(SetupPayload INTERFACE
-    ManualSetupPayloadGenerator.cpp
-    ManualSetupPayloadParser.cpp
-    QRCodeSetupPayloadGenerator.cpp
-    SetupPayload.cpp
-    Base41.cpp
-    QRCodeSetupPayloadParser.cpp
-    SetupPayloadHelper.cpp
-)
-target_include_directories(SetupPayload INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR})
+set(OT_BUILD_EXECUTABLES OFF CACHE BOOL "Disable OpenThread samples")
+add_subdirectory(repo EXCLUDE_FROM_ALL)
+
+endif (CHIP_ENABLE_OPENTHREAD_INTERNAL)

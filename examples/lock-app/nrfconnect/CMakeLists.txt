@@ -15,20 +15,34 @@
 #
 cmake_minimum_required(VERSION 3.13.1)
 
-set(CHIP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/connectedhomeip)
-get_filename_component(CHIP_ROOT ${CHIP_ROOT} REALPATH)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CHIP_ROOT}/config/nrfconnect/)
-
 # Make sure all components can see our mbedtls config
 include_directories(AFTER main/include)
-
-include(nrfconnect-app)
+find_package(Zephyr HINTS $ENV{ZEPHYR_BASE})
 
 project(chip-nrf52840-lock-example)
+
+# Declaring chipPlatform target tells the CHIP build system, that this is not a standalone build.
+add_library(chipPlatform ALIAS app)
+
+option(CHIP_BUILD_LIBRARY "Enable CHIP library build" OFF)
+add_subdirectory(third_party/connectedhomeip)
+
+chip_compose_library(CHIP
+    chipPlatform
+    ChipCore
+    ChipCryptombedTLS
+    DeviceLayerNrfconnect
+    DeviceLayerOpenThread
+    UdpEndPoint
+    InetSockets
+)
+
 target_sources(app PRIVATE
-               main/AppTask.cpp
-               main/BoltLockManager.cpp
-               main/DataModelHandler.cpp
-               main/main.cpp
-               main/LEDWidget.cpp
-               main/Server.cpp)
+    main/AppTask.cpp
+    main/BoltLockManager.cpp
+    main/DataModelHandler.cpp
+    main/main.cpp
+    main/LEDWidget.cpp
+    main/Server.cpp
+)
+target_link_libraries(app PRIVATE CHIP)

@@ -20,17 +20,14 @@
 #      This file is the CMake template for the Lightweight Internet Protocol (LwIP) library.
 #
 
-add_library(lwip)
+chip_add_extra_library(lwipInternal)
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/third_party/lwip/repo/lwip/src/include
+target_include_directories(lwipInternal INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/repo/lwip/src/include
 )
 
-set(LWIP_API_SOURCES
+target_sources(lwipInternal INTERFACE
+    # API sources
     repo/lwip/src/api/api_lib.c
     repo/lwip/src/api/api_msg.c
     repo/lwip/src/api/err.c
@@ -39,9 +36,7 @@ set(LWIP_API_SOURCES
     repo/lwip/src/api/netifapi.c
     repo/lwip/src/api/sockets.c
     repo/lwip/src/api/tcpip.c
-)
-
-set(LWIP_CORE_SOURCES
+    # Core sources
     repo/lwip/src/core/def.c
     repo/lwip/src/core/dns.c
     repo/lwip/src/core/inet_chksum.c
@@ -77,25 +72,10 @@ set(LWIP_CORE_SOURCES
     repo/lwip/src/core/udp.c
     repo/lwip/src/core/ip.c
     repo/lwip/src/core/timeouts.c
-)
-
-set(LWIP_NETIF_SOURCES
+    # Netif sources
     repo/lwip/src/netif/ethernet.c
 )
-
-set(COMMON_SOURCES
-    ${LWIP_API_SOURCES}
-    ${LWIP_CORE_SOURCES}
-    ${LWIP_NETIF_SOURCES}
-)
-
-
-target_compile_definitions(lwip PRIVATE)
-target_compile_options(lwip PRIVATE)
-target_include_directories(lwip PRIVATE ${COMMON_INCLUDES})
-target_sources(lwip PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(lwip PRIVATE
-    lwipTarget
-    chip-config
+target_compile_definitions(lwipInternal INTERFACE
+    CHIP_SYSTEM_CONFIG_USE_SOCKETS=0
+    CHIP_SYSTEM_CONFIG_USE_LWIP=1
 )

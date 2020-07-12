@@ -17,20 +17,12 @@
 
 #
 #    Description:
-#      This file is the CMake template for the CHIP SDK QR code library.
+#      This file is the CMake template for the CHIP SDK LWIP testing code.
 #
 
-add_subdirectory(tests)
+if (CHIP_ENABLE_LWIP_INTERNAL AND BUILD_TESTING)
 
-chip_add_extra_library(SetupPayload)
-target_sources(SetupPayload INTERFACE
-    ManualSetupPayloadGenerator.cpp
-    ManualSetupPayloadParser.cpp
-    QRCodeSetupPayloadGenerator.cpp
-    SetupPayload.cpp
-    Base41.cpp
-    QRCodeSetupPayloadParser.cpp
-    SetupPayloadHelper.cpp
-)
-target_include_directories(SetupPayload INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR})
+chip_add_test(TestLwip tests.c)
+target_link_libraries(TestLwip PRIVATE lwipInternal lwipStandalone chipPlatform)
+
+endif (CHIP_ENABLE_LWIP_INTERNAL AND BUILD_TESTING)

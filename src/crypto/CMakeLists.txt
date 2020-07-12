@@ -22,27 +22,12 @@
 
 add_subdirectory(tests)
 
-add_library(ChipCrypto)
+add_library(ChipCryptombedTLS INTERFACE)
+target_sources(ChipCryptombedTLS INTERFACE CHIPCryptoPALmbedTLS.cpp)
+target_include_directories(ChipCryptombedTLS INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(ChipCryptombedTLS INTERFACE CHIP_CRYPTO_MBEDTLS=1)
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/third_party/mbedtls/repo/include
-)
-
-if (CHIP_CRYPTO_MBEDTLS)
-set(COMMON_SOURCES CHIPCryptoPALmbedTLS.cpp)
-endif ()
-
-if (CHIP_CRYPTO_OPENSSL)
-set(COMMON_SOURCES CHIPCryptoPALOpenSSL.cpp)
-endif ()
-
-target_compile_definitions(ChipCrypto PRIVATE)
-target_compile_options(ChipCrypto PRIVATE)
-target_include_directories(ChipCrypto PRIVATE ${COMMON_INCLUDES})
-target_sources(ChipCrypto PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(ChipCrypto PRIVATE chip-config)
+add_library(ChipCryptoOpenSSL INTERFACE)
+target_sources(ChipCryptoOpenSSL INTERFACE CHIPCryptoPALOpenSSL.cpp)
+target_include_directories(ChipCryptoOpenSSL INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(ChipCryptoOpenSSL INTERFACE CHIP_CRYPTO_OPENSSL=1)

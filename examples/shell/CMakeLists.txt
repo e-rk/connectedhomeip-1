@@ -22,45 +22,16 @@
 
 cmake_minimum_required(VERSION 3.17.2)
 
-project(chip-shell LANGUAGES C CXX ASM)
+project(chip-shell LANGUAGES C CXX)
 
-#
-# Pull in CHIP SDK as external package.
-#
-find_package(Chip REQUIRED PATHS ${PROJECT_SOURCE_DIR}/third_party/connectedhomeip)
-
-#
-# Build CHIP with our selected platform in-place, skipping install step.
-#
-include(ExternalProject)
-ExternalProject_Add(Chip
-  SOURCE_DIR        "${PROJECT_SOURCE_DIR}/third_party/connectedhomeip"
-  BINARY_DIR        "${PROJECT_BINARY_DIR}/third_party/connectedhomeip"
-  INSTALL_COMMAND   ""
-)
-
-set(COMMON_INCLUDES
-    ${Chip_INCLUDE_DIRS}
-)
-
-set(COMMON_LIBS
-    ${PLATFORM_LINK_START}
-    ${Chip_LIBRARIES}
-    ChipCore
-    ${PLATFORM_LINK_END}
-    chip-config
-)
-
-set(COMMON_LDPATH)
+add_subdirectory(third_party/connectedhomeip)
 
 add_executable(chip-shell
     cmd_base64.cpp
+    cmd_device.cpp
     cmd_misc.cpp
     main.cpp
 )
-
-target_include_directories(chip-shell PRIVATE ${COMMON_INCLUDES})
-target_link_libraries(chip-shell PRIVATE ${COMMON_LIBS})
-target_link_directories(chip-shell PRIVATE ${COMMON_LDPATH})
-
-add_dependencies(chip-shell Chip)
+target_link_libraries(chip-shell PRIVATE
+    CHIP
+)

@@ -17,20 +17,27 @@
 
 #
 #    Description:
-#      This file is the CMake template for the CHIP SDK QR code library.
+#      Build system description for the CHIP ZCL tests.
 #
 
-add_subdirectory(tests)
+if (BUILD_TESTING)
 
-chip_add_extra_library(SetupPayload)
-target_sources(SetupPayload INTERFACE
-    ManualSetupPayloadGenerator.cpp
-    ManualSetupPayloadParser.cpp
-    QRCodeSetupPayloadGenerator.cpp
-    SetupPayload.cpp
-    Base41.cpp
-    QRCodeSetupPayloadParser.cpp
-    SetupPayloadHelper.cpp
+add_library(ChipZclPluginTests STATIC "")
+target_sources(ChipZclPluginTests PRIVATE
+    cluster-cmd-on-off-test.c
+    cluster-server-basic-test.c
+    cluster-server-identify-test.c
+    cluster-server-level-control-test.c
+    cluster-server-on-off-test.c
+    codec-simple-test.c
+    core-data-model-test.c
+    core-message-dispatch-test.c
 )
-target_include_directories(SetupPayload INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(ChipZclPluginTests PUBLIC
+    CHIP
+)
+
+chip_add_test(TestChipZclPlugin ChipZclUnitTestsDriver.c)
+target_link_libraries(TestChipZclPlugin PRIVATE ChipZclPluginTests)
+
+endif (BUILD_TESTING)

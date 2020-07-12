@@ -20,13 +20,13 @@
 #      This file is the CMake template for the mbedtls library.
 #
 
-add_library(mbedtls)
+add_library(chipMbedTLSInternal INTERFACE)
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/third_party/mbedtls/repo/include
+target_include_directories(chipMbedTLSInternal INTERFACE
+    repo/include
 )
 
-set(COMMON_SOURCES
+target_sources(chipMbedTLSInternal INTERFACE
     repo/library/aes.c
     repo/library/aesni.c
     repo/library/arc4.c
@@ -92,17 +92,5 @@ set(COMMON_SOURCES
     repo/library/x509write_crt.c
     repo/library/x509write_csr.c
     repo/library/xtea.c
-)
-
-if (CHIP_TARGET_STYLE_UNIX)
-set(COMMON_SOURCES
-    ${COMMON_SOURCES}
     repo/library/timing.c
 )
-endif ()
-
-target_compile_definitions(mbedtls PRIVATE)
-target_include_directories(mbedtls PUBLIC ${COMMON_INCLUDES})
-target_sources(mbedtls PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(mbedtls PUBLIC chip-config)

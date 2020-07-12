@@ -20,61 +20,34 @@
 #      This file is the CMake template for the CHIP SDK system layer library tests.
 #
 
-add_library(SystemLayerTests
+if (BUILD_TESTING)
+
+add_library(SystemLayerTests STATIC
     TestSystemErrorStr.cpp
     TestSystemObject.cpp
     TestSystemPacketBuffer.cpp
     TestSystemTimer.cpp
 )
 
-target_include_directories(SystemLayerTests PUBLIC
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/lib/core
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/third_party/lwip/repo/lwip/src/include
-    ${NLUNIT_TEST_INCLUDES}
-)
-
 target_link_libraries(SystemLayerTests PUBLIC
-    ${PLATFORM_LINK_START}
-    BleLayer
-    InetLayer
-    SystemLayer
-    SupportLayer
-    nlfaultinjection
+    CHIP
     nlunit-test
-    ${CHIP_PLATFORM_LIBS}
-    ${PLATFORM_LINK_END}
-    chip-config
-)
-
-target_link_directories(SystemLayerTests PUBLIC
-    ${NLUNIT_TEST_LDPATH}
-    ${NLFAULT_INJECTION_LDPATH}
 )
 
 #### TestSystemErrorStr
-add_executable(TestSystemErrorStr TestSystemErrorStrDriver.cpp)
+chip_add_test(TestSystemErrorStr TestSystemErrorStrDriver.cpp)
 target_link_libraries(TestSystemErrorStr PRIVATE SystemLayerTests)
-add_test(NAME TestSystemErrorStr COMMAND TestSystemErrorStr)
-add_dependencies(check TestSystemErrorStr)
 
 #### TestSystemObject
-add_executable(TestSystemObject TestSystemObjectDriver.cpp)
+chip_add_test(TestSystemObject TestSystemObjectDriver.cpp)
 target_link_libraries(TestSystemObject PRIVATE SystemLayerTests)
-add_test(NAME TestSystemObject COMMAND TestSystemObject)
-add_dependencies(check TestSystemObject)
 
 #### TestSystemPacketBuffer
-add_executable(TestSystemPacketBuffer TestSystemPacketBufferDriver.cpp)
+chip_add_test(TestSystemPacketBuffer TestSystemPacketBufferDriver.cpp)
 target_link_libraries(TestSystemPacketBuffer PRIVATE SystemLayerTests)
-add_test(NAME TestSystemPacketBuffer COMMAND TestSystemPacketBuffer)
-add_dependencies(check TestSystemPacketBuffer)
 
 #### TestSystemTimer
-add_executable(TestSystemTimer TestSystemTimerDriver.cpp)
+chip_add_test(TestSystemTimer TestSystemTimerDriver.cpp)
 target_link_libraries(TestSystemTimer PRIVATE SystemLayerTests)
-add_test(NAME TestSystemTimer COMMAND TestSystemTimer)
-add_dependencies(check TestSystemTimer)
+
+endif (BUILD_TESTING)

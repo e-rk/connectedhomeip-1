@@ -22,46 +22,25 @@
 
 add_subdirectory(tests)
 
-add_library(ChipCore)
+chip_add_core_library(Core)
 
-target_compile_definitions(ChipCore PRIVATE
-    ${CHIP_CORE_PRIVATE_DEFINES}
+target_compile_definitions(Core INTERFACE
+    ${CHIP_CORE_DEFINES}
 )
 
-target_compile_options(ChipCore PRIVATE
+target_compile_options(Core INTERFACE
     ${CHIP_CORE_CFLAGS}
 )
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src/
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/inet
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/lib/core
-    ${PROJECT_SOURCE_DIR}/src/lib/support
-    ${PROJECT_SOURCE_DIR}/src/system
+target_sources(Core INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPCircularTLVBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPError.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPTLVDebug.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPTLVReader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPTLVUtilities.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPTLVWriter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPTLVUpdater.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPKeyIds.cpp
 )
 
-set(COMMON_SOURCES
-    CHIPCircularTLVBuffer.cpp
-    CHIPError.cpp
-    CHIPTLVDebug.cpp
-    CHIPTLVReader.cpp
-    CHIPTLVUtilities.cpp
-    CHIPTLVWriter.cpp
-    CHIPTLVUpdater.cpp
-    CHIPKeyIds.cpp
-)
-
-target_include_directories(ChipCore PRIVATE ${COMMON_INCLUDES})
-
-target_sources(ChipCore PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(ChipCore PRIVATE
-    ChipCrypto
-    InetLayer
-    SystemLayer
-    SupportLayer
-    ${CHIP_PLATFORM_LIBS}
-    chip-config
-)
+target_include_directories(Core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

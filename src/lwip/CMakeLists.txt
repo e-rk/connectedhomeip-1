@@ -20,62 +20,43 @@
 #      This file is the CMake template for the CHIP SDK LWIP portability layer code.
 #
 
-if (CHIP_WITH_LWIP_INTERNAL)
+add_subdirectory(tests)
 
-# add_subdirectory(tests)
-
-add_library(lwipTarget)
-
-if(CHIP_LWIP_TARGET_STANDALONE)
-
-set(COMMON_SOURCES
+#
+# Standalone target
+#
+chip_add_extra_library(lwipStandalone)
+target_sources(lwipStandalone INTERFACE
     standalone/sys_arch.c
     standalone/TapInterface.c
 )
-
-set(COMMON_INCLUDES
+target_include_directories(lwipStandalone INTERFACE
     standalone/arch
     standalone
-    standalone
 )
 
-endif(CHIP_LWIP_TARGET_STANDALONE)
-
-if(CHIP_LWIP_TARGET_NRF5)
-
-set(COMMON_SOURCES
+#
+# nRF5 target
+#
+chip_add_extra_library(lwipTargetNrf5)
+target_sources(lwipTargetNrf5 INTERFACE
     freertos/sys_arch.c
 )
-
-set(COMMON_INCLUDES
-    freertos/arch
+target_include_directories(lwipTargetNrf5 INTERFACE
+    freertos
     nrf5/arch
     nrf5
 )
 
-# Add lwip and lwipTarget to the PlatformBsp library
-#target_link_libraries(PlatformBsp PRIVATE lwip lwipTarget)
-
-endif(CHIP_LWIP_TARGET_NRF5)
-
-if(CHIP_LWIP_TARGET_EFR32)
-
-set(COMMON_SOURCES
+#
+# EFR32 target
+#
+chip_add_extra_library(lwipEfr32)
+target_sources(lwipEfr32 INTERFACE
     freertos/sys_arch.c
 )
-
-set(COMMON_INCLUDES
+target_include_directories(lwipEfr32 INTERFACE
     freertos/arch
     efr32/arch
     efr32
 )
-
-endif(CHIP_LWIP_TARGET_EFR32)
-
-target_include_directories(lwipTarget PRIVATE ${COMMON_INCLUDES})
-
-target_sources(lwipTarget PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(lwipTarget PRIVATE chip-config)
-
-endif (CHIP_WITH_LWIP_INTERNAL)

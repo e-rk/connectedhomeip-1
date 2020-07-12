@@ -23,12 +23,12 @@
 #
 # Declare cmake version requirements
 #
-cmake_minimum_required(VERSION 3.17.2)
+cmake_minimum_required(VERSION 3.16.5)
 
 #
 # Specify the top-level project name and the languages used.
 #
-project(Chip 
+project(Chip
     LANGUAGES C CXX ASM
 )
 
@@ -42,35 +42,28 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CHIP_PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root of CHIP SDK source")
 set(CHIP_PROJECT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Root of CHIP SDK build output")
 
-include("${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/toolchain.cmake")
+include("${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/extensions.cmake")
+include("${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/options.cmake")
 
+option(CHIP_BUILD_LIBRARY "Build CHIP library" ON)
+
+# Check if chipPlatform target exists
+if (NOT TARGET chipPlatform)
+    # If not, assume we build standalone.
+    include(${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/platforms/standalone/platform.cmake)
+
+    # Eneble testing for standalone config by default. Including CTest implicitly sets BUILD_TESTING variable to on,
+    # but only if it was not explicitly set to off previously.
+    include(CTest)
+    if (BUILD_TESTING)
+        add_custom_target(check ${CMAKE_CTEST_COMMAND} -V)
+    endif (BUILD_TESTING)
+endif (NOT TARGET chipPlatform)
+
+add_subdirectory(examples)
 add_subdirectory(src)
 add_subdirectory(third_party)
 
-#
-# Compose list of all libraries produced by the CHIP SDK package.
-#
-set(CHIP_LIBRARIES
-    ChipCore 
-    ChipCrypto
-    ChipDataModel
-    ChipShell
-    BleLayer
-    InetLayer
-    SystemLayer
-    SupportLayer
-    TransportLayer
-    ${CHIP_PLATFORM_LIBS_PACKAGE}
-)
-
-#
-# Install defines which artifacts to include in CPack package.
-#
-install(
-  TARGETS ${CHIP_LIBRARIES} 
-  EXPORT Chip
-  DESTINATION "${CHIP_PLATFORM}_${CMAKE_BUILD_TYPE}/lib"
-)
-
-set(CPACK_PACKAGE_NAME "Chip")
-include(CPack)
+if (CHIP_BUILD_LIBRARY)
+    include(${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/platforms/standalone/composition.cmake)
+endif ()

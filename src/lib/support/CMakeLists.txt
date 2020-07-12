@@ -22,16 +22,9 @@
 
 add_subdirectory(tests)
 
-add_library(SupportLayer)
+chip_add_core_library(SupportLayer INTERFACE)
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src/
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/third_party/nlfaultinjection/repo/include
-)
-
-set(COMMON_SOURCES
+target_sources(SupportLayer INTERFACE
     Base64.cpp
     CHIPArgParser.cpp
     CHIPCounter.cpp
@@ -53,10 +46,3 @@ set(COMMON_SOURCES
     verhoeff/Verhoeff32.cpp
     verhoeff/Verhoeff36.cpp
 )
-
-target_compile_definitions(SupportLayer PRIVATE)
-target_compile_options(SupportLayer PRIVATE)
-target_include_directories(SupportLayer PRIVATE ${COMMON_INCLUDES})
-target_sources(SupportLayer PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(SupportLayer PRIVATE chip-config)

@@ -17,20 +17,13 @@
 
 #
 #    Description:
-#      This file is the CMake template for the CHIP SDK QR code library.
+#      Build system description for the qrcodetool.
 #
 
-add_subdirectory(tests)
+if (CHIP_BUILD_TOOLS)
 
-chip_add_extra_library(SetupPayload)
-target_sources(SetupPayload INTERFACE
-    ManualSetupPayloadGenerator.cpp
-    ManualSetupPayloadParser.cpp
-    QRCodeSetupPayloadGenerator.cpp
-    SetupPayload.cpp
-    Base41.cpp
-    QRCodeSetupPayloadParser.cpp
-    SetupPayloadHelper.cpp
-)
-target_include_directories(SetupPayload INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR})
+add_executable(qrcodetool qrcodetool.cpp setup_payload_commands.cpp)
+target_include_directories(qrcodetool PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(qrcodetool PRIVATE CHIP)
+
+endif (CHIP_BUILD_TOOLS)

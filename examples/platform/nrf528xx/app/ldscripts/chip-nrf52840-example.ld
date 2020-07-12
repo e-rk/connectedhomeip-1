@@ -28,12 +28,12 @@ MEMORY
     /* FLASH region used for Nordic FDS value storage. */
     FDS_FLASH (rw) : ORIGIN = TOTAL_FLASH_SIZE - (FLASH_PAGE_SIZE * FDS_FLASH_PAGES), LENGTH = (FLASH_PAGE_SIZE * FDS_FLASH_PAGES)
 
-    /* FLASH region used for OpenThread data storage. */ 
+    /* FLASH region used for OpenThread data storage. */
     OT_DATA_FLASH (rw) : ORIGIN = ORIGIN(FDS_FLASH) - (FLASH_PAGE_SIZE * OT_DATA_FLASH_PAGES), LENGTH = (FLASH_PAGE_SIZE * OT_DATA_FLASH_PAGES)
-    
+
     /* FLASH region used for application code and read-only data. */
     FLASH (rx) : ORIGIN = ORIGIN(SD_FLASH) + LENGTH(SD_FLASH), LENGTH = ORIGIN(OT_DATA_FLASH) - ORIGIN(FLASH)
-    
+
     /* RAM region used for application dynamic data. */
     RAM (rw) : ORIGIN = ORIGIN(SD_RAM) + LENGTH(SD_RAM), LENGTH = TOTAL_RAM_SIZE - LENGTH(SD_RAM)
 }
@@ -41,21 +41,28 @@ MEMORY
 SECTIONS
 {
     . = ALIGN(4);
-  
+
+    .fs_data :
+    {
+        PROVIDE(__start_fs_data = .);
+        KEEP(*(.fs_data))
+        PROVIDE(__stop_fs_data = .);
+    } > RAM
+
     .log_dynamic_data :
     {
         PROVIDE(__start_log_dynamic_data = .);
         KEEP(*(SORT(.log_dynamic_data*)))
         PROVIDE(__stop_log_dynamic_data = .);
     } > RAM
-    
+
     .log_filter_data :
     {
         PROVIDE(__start_log_filter_data = .);
         KEEP(*(SORT(.log_filter_data*)))
         PROVIDE(__stop_log_filter_data = .);
     } > RAM
-} 
+}
 INSERT AFTER .data;
 
 SECTIONS
@@ -66,56 +73,56 @@ SECTIONS
         KEEP(*(SORT(.sdh_soc_observers*)))
         PROVIDE(__stop_sdh_soc_observers = .);
     } > FLASH
-    
+
     .sdh_ble_observers :
     {
         PROVIDE(__start_sdh_ble_observers = .);
         KEEP(*(SORT(.sdh_ble_observers*)))
         PROVIDE(__stop_sdh_ble_observers = .);
     } > FLASH
-    
+
     .sdh_stack_observers :
     {
         PROVIDE(__start_sdh_stack_observers = .);
         KEEP(*(SORT(.sdh_stack_observers*)))
         PROVIDE(__stop_sdh_stack_observers = .);
     } > FLASH
-    
+
     .sdh_req_observers :
     {
         PROVIDE(__start_sdh_req_observers = .);
         KEEP(*(SORT(.sdh_req_observers*)))
         PROVIDE(__stop_sdh_req_observers = .);
     } > FLASH
-    
+
     .sdh_state_observers :
     {
         PROVIDE(__start_sdh_state_observers = .);
         KEEP(*(SORT(.sdh_state_observers*)))
         PROVIDE(__stop_sdh_state_observers = .);
     } > FLASH
-    
+
     .crypto_data :
     {
         PROVIDE(__start_crypto_data = .);
         KEEP(*(SORT(.crypto_data*)))
         PROVIDE(__stop_crypto_data = .);
     } > FLASH
-    
+
     .log_const_data :
     {
         PROVIDE(__start_log_const_data = .);
         KEEP(*(SORT(.log_const_data*)))
         PROVIDE(__stop_log_const_data = .);
     } > FLASH
-    
+
     .log_backends :
     {
         PROVIDE(__start_log_backends = .);
         KEEP(*(SORT(.log_backends*)))
         PROVIDE(__stop_log_backends = .);
     } > FLASH
-    
+
     .nrf_balloc :
     {
         PROVIDE(__start_nrf_balloc = .);

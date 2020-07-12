@@ -20,7 +20,9 @@
 #      This file is the CMake template for the CHIP SDK transport layer library tests.
 #
 
-add_library(TransportLayerTests
+if (BUILD_TESTING)
+
+add_library(TransportLayerTests STATIC
     NetworkTestHelpers.cpp
     TestMessageHeader.cpp
     TestPeerConnections.cpp
@@ -29,64 +31,29 @@ add_library(TransportLayerTests
     TestUDP.cpp
 )
 
-target_include_directories(TransportLayerTests PUBLIC
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/lib/core
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/src/inet/tests
-    ${PROJECT_SOURCE_DIR}/src/transport/tests
-    ${NLUNIT_TEST_INCLUDES}
-    ${PROJECT_SOURCE_DIR}/third_party/lwip/repo/lwip/src/include
-)
-
 target_link_libraries(TransportLayerTests PUBLIC
-    ${PLATFORM_LINK_START}
-    InetLayerTests
-    TransportLayer
-    BleLayer
-    ChipCrypto
-    InetLayer
-    SystemLayer
-    SupportLayer
-    nlfaultinjection
+    CHIP
     nlunit-test
-    ${CHIP_PLATFORM_LIBS}
-    ${PLATFORM_LINK_END}
-    chip-config
+    InetLayerTests
 )
 
-target_link_directories(TransportLayerTests PUBLIC
-    ${NLUNIT_TEST_LDPATH}
-    ${NLFAULT_INJECTION_LDPATH}
-)
-
-add_executable(TestTransportMessageHeader TestMessageHeaderDriver.cpp)
+chip_add_test(TestTransportMessageHeader TestMessageHeaderDriver.cpp)
 target_link_libraries(TestTransportMessageHeader PRIVATE TransportLayerTests)
-add_test(NAME TestTransportMessageHeader COMMAND TestTransportMessageHeader)
-add_dependencies(check TestTransportMessageHeader)
 
-add_executable(TestTransportPeerConnections TestPeerConnectionsDriver.cpp)
+chip_add_test(TestTransportPeerConnections TestPeerConnectionsDriver.cpp)
 target_link_libraries(TestTransportPeerConnections PRIVATE TransportLayerTests)
-add_test(NAME TestTransportPeerConnections COMMAND TestTransportPeerConnections)
-add_dependencies(check TestTransportPeerConnections)
 
 if(CHIP_TARGET_STYLE_UNIX)
 
-add_executable(TestTransportSecureSession TestSecureSessionDriver.cpp)
+chip_add_test(TestTransportSecureSession TestSecureSessionDriver.cpp)
 target_link_libraries(TestTransportSecureSession PRIVATE TransportLayerTests)
-add_test(NAME TestTransportSecureSession COMMAND TestTransportSecureSession)
-add_dependencies(check TestTransportSecureSession)
 
-add_executable(TestTransportSecureSessionMgr TestSecureSessionMgrDriver.cpp)
+chip_add_test(TestTransportSecureSessionMgr TestSecureSessionMgrDriver.cpp)
 target_link_libraries(TestTransportSecureSessionMgr PRIVATE TransportLayerTests)
-add_test(NAME TestTransportSecureSessionMgr COMMAND TestTransportSecureSessionMgr)
-add_dependencies(check TestTransportSecureSessionMgr)
 
-add_executable(TestTransportUDP TestUDPDriver.cpp)
+chip_add_test(TestTransportUDP TestUDPDriver.cpp)
 target_link_libraries(TestTransportUDP PRIVATE TransportLayerTests)
-add_test(NAME TestTransportUDP COMMAND TestTransportUDP)
-add_dependencies(check TestTransportUDP)
 
 endif(CHIP_TARGET_STYLE_UNIX)
+
+endif (BUILD_TESTING)

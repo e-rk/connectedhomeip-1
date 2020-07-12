@@ -21,30 +21,30 @@
 #      and Bluetooth Transport Protocol (BTP) code.
 #
 
-add_subdirectory(tests)
+# add_subdirectory(tests)
 
-add_library(BleLayer)
+chip_add_core_library(BleLayer)
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src/
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/lib/core
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/third_party/nlfaultinjection/repo/include
-)
-
-set(COMMON_SOURCES
+target_sources(BleLayer INTERFACE
     BleError.cpp
     BleLayer.cpp
     BleUUID.cpp
     BLEEndPoint.cpp
     BtpEngine.cpp
 )
+target_compile_definitions(BleLayer INTERFACE
+    CONFIG_NETWORK_LAYER_BLE=1
+)
 
-target_compile_definitions(BleLayer PRIVATE)
-target_compile_options(BleLayer PRIVATE)
-target_include_directories(BleLayer PRIVATE ${COMMON_INCLUDES})
-target_sources(BleLayer PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(BleLayer PRIVATE chip-config)
+chip_public_headers(BleLayer
+    ${CMAKE_CURRENT_SOURCE_DIR}/Ble.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/BleApplicationDelegate.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/BleConfig.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/BLEEndPoint.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/BleError.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/BleLayer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/BlePlatformDelegate.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/BleUUID.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/BtpEngine.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPBleServiceData.h
+)

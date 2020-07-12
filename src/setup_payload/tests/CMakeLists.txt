@@ -20,50 +20,26 @@
 #      This file is the CMake template for the CHIP SDK QR code library tests.
 #
 
-add_library(SetupPayloadTests
+if (BUILD_TESTING)
+
+add_library(SetupPayloadTests STATIC
     TestManualCode.cpp
     TestQRCode.cpp
     TestQRCodeTLV.cpp
 )
 
-target_include_directories(SetupPayloadTests PUBLIC
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/src/setup_payload
-    ${NLUNIT_TEST_INCLUDES}
-)
-
-target_link_libraries(SetupPayloadTests PUBLIC
-    ChipCore
-    SystemLayer
-    SupportLayer
-    nlfaultinjection
-    nlunit-test
-    ${CHIP_PLATFORM_LIBS}
-    chip-config
-)
-
-target_link_directories(SetupPayloadTests PUBLIC
-    ${NLUNIT_TEST_LDPATH}
-    ${NLFAULT_INJECTION_LDPATH}
-)
+target_link_libraries(SetupPayloadTests PUBLIC CHIP nlunit-test)
 
 #### TestManualCode
-add_executable(TestManualCode TestManualCodeDriver.cpp)
+chip_add_test(TestManualCode TestManualCodeDriver.cpp)
 target_link_libraries(TestManualCode PRIVATE SetupPayloadTests)
-add_test(NAME TestManualCode COMMAND TestManualCode)
-add_dependencies(check TestManualCode)
 
 #### TestQRCode
-add_executable(TestQRCode TestQRCodeDriver.cpp)
+chip_add_test(TestQRCode TestQRCodeDriver.cpp)
 target_link_libraries(TestQRCode PRIVATE SetupPayloadTests)
-add_test(NAME TestQRCode COMMAND TestQRCode)
-add_dependencies(check TestQRCode)
 
 #### TestQRCodeTLV
-add_executable(TestQRCodeTLV TestQRCodeTLVDriver.cpp)
+chip_add_test(TestQRCodeTLV TestQRCodeTLVDriver.cpp)
 target_link_libraries(TestQRCodeTLV PRIVATE SetupPayloadTests)
-add_test(NAME TestQRCodeTLV COMMAND TestQRCodeTLV)
-add_dependencies(check TestQRCodeTLV)
+
+endif (BUILD_TESTING)

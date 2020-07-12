@@ -22,29 +22,11 @@
 
 add_subdirectory(tests)
 
-add_library(TransportLayer)
+chip_add_core_library(TransportLayer)
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/lib/core
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/src/transport
-    ${PROJECT_SOURCE_DIR}/third_party/nlassert/repo/include
-    ${PROJECT_SOURCE_DIR}/third_party/mbedtls/repo/include
-)
-
-set(COMMON_SOURCES
+target_sources(TransportLayer INTERFACE
     MessageHeader.cpp
     SecureSession.cpp
     SecureSessionMgr.cpp
     UDP.cpp
 )
-
-target_compile_definitions(TransportLayer PRIVATE)
-target_compile_options(TransportLayer PRIVATE)
-target_include_directories(TransportLayer PRIVATE ${COMMON_INCLUDES})
-target_sources(TransportLayer PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(TransportLayer PRIVATE chip-config)

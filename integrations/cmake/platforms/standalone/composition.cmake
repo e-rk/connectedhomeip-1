@@ -16,21 +16,28 @@
 #
 
 #
+#
 #    Description:
-#      This file is the CMake template for the CHIP SDK QR code library.
+#      CHIP library composition configuration file.
 #
 
-add_subdirectory(tests)
-
-chip_add_extra_library(SetupPayload)
-target_sources(SetupPayload INTERFACE
-    ManualSetupPayloadGenerator.cpp
-    ManualSetupPayloadParser.cpp
-    QRCodeSetupPayloadGenerator.cpp
-    SetupPayload.cpp
-    Base41.cpp
-    QRCodeSetupPayloadParser.cpp
-    SetupPayloadHelper.cpp
+chip_compose_library(CHIP
+        inipp
+        nlfaultinjection
+        ChipCore
+        SetupPayload
+        DeviceLayerLinux
+        UdpEndPoint
+        TcpEndPoint
+        RawEndPoint
+        DnsResolver
+        AsyncDnsResolver
+        ChipCryptoOpenSSL
+        IPv4Connectivity
+        ChipShell
+        ot-br-posix
+        InetSockets
+        openthread-platform # This target is declared in third_party/openthread/repo
 )
-target_include_directories(SetupPayload INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR})
+add_dependencies(CHIP ChipHeader)
+target_link_libraries(CHIP PUBLIC chipPlatform)

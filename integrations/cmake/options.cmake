@@ -40,22 +40,10 @@ include(ExternalProject)
 endif ()
 
 #
-# Provides selection of the cryptographic implementation.
-#
-set(with_crypto "mbedtls" CACHE STRING "Specify the crypto implementation from one of: auto, mbedtls, or openssl (default=auto)")
-set_property(CACHE with_crypto PROPERTY STRINGS mbedtls openssl)
-
-#
 # Provides selection of the network layer technology.
 #
 set(with_network "all" CACHE STRING "Specify the target network layers from one of: ble, inet, or all (default=all)")
 set_property(CACHE with_network PROPERTY STRINGS all inet ble)
-
-#
-# Provides selection of the system layer technology.
-#
-set(with_system "sockets" CACHE STRING "Specify the target network stack from one of: sockets, lwip or Network.framework (default=sockets)")
-set_property(CACHE with_system PROPERTY STRINGS sockets lwip Network.framework)
 
 #
 # Map CMake target descriptions to same names as autotools and gn for convenience.
@@ -89,8 +77,5 @@ message(STATUS "
   Target OS                                        : ${target_os}
   Target style                                     : ${CHIP_TARGET_STYLE}
 
-  Target device layer                              : ${CHIP_DEVICE_LAYER_TARGET}
-  Target crypto layer                              : ${with_crypto}
   Target network layer                             : ${with_network}
-  Target system layer                              : ${with_system}
 ")

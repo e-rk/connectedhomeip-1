@@ -20,49 +20,36 @@
 #      This file is the CMake template for building CHIP SDK lock-app example for Nordic nRF52840.
 #
 
-cmake_minimum_required(VERSION 3.17.2)
+cmake_minimum_required(VERSION 3.16.5)
+
+set(NRF5_SDK_ROOT $ENV{NRF5_SDK_ROOT} CACHE PATH "Root of Nordic NRF5")
+set(CHIP_PROJECT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/connectedhomeip")
 
 project(lock-app LANGUAGES C CXX ASM)
 
-#
-# Set CHIP_PLATFORM option to target platform.
-#
-set(CHIP_PLATFORM nrf52840 CACHE STRING "Select target platform")
+if(NOT DEFINED LINKER_SCRIPT)
+    set(LINKER_SCRIPT "${CHIP_PROJECT_SOURCE_DIR}/examples/platform/nrf528xx/app/ldscripts/chip-nrf52840-example.ld")
+    message("Warning: No linker script defined -- using default.")
+endif(NOT DEFINED LINKER_SCRIPT)
+message("Linker script: ${LINKER_SCRIPT}")
+
+set(CHIP_WITH_LWIP_INTERNAL 1)
 
 #
-# Pull in CHIP SDK as external package.
+# Define before doing add_subdirectory to indicate that this is not a standalone.
 #
-find_package(Chip REQUIRED PATHS ${PROJECT_SOURCE_DIR}/third_party/connectedhomeip)
+add_library(chipPlatform STATIC "")
 
-#
-# Build CHIP with our selected platform in-place, skipping install step.
-#
-include(ExternalProject)
-ExternalProject_Add(Chip
-  SOURCE_DIR        "${PROJECT_SOURCE_DIR}/third_party/connectedhomeip"
-  BINARY_DIR        "${PROJECT_BINARY_DIR}/third_party/connectedhomeip"
-  CMAKE_ARGS        -DCHIP_PLATFORM=${CHIP_PLATFORM} 
-  INSTALL_COMMAND   ""
-)
+option(CHIP_BUILD_LIBRARY "Enable CHIP library build" OFF)
+add_subdirectory(third_party/connectedhomeip)
 
 set(NRF5_PLATFORM_DIR ${CHIP_PROJECT_SOURCE_DIR}/examples/platform/nrf528xx)
 
 set(COMMON_INCLUDES
-    ${CHIP_PROJECT_SOURCE_DIR}/src
-    ${CHIP_PROJECT_SOURCE_DIR}/src/app
-    ${CHIP_PROJECT_SOURCE_DIR}/src/app/chip-zcl
-    ${CHIP_PROJECT_SOURCE_DIR}/src/app/gen
-    ${CHIP_PROJECT_SOURCE_DIR}/src/include
-    ${CHIP_PROJECT_SOURCE_DIR}/src/lib
-    ${CHIP_PROJECT_SOURCE_DIR}/src/crypto
-    ${CHIP_PROJECT_SOURCE_DIR}/src/system
-    ${CHIP_PROJECT_SOURCE_DIR}/src/inet
-    ${CHIP_PROJECT_SOURCE_DIR}/src/platform
-    ${CHIP_PROJECT_SOURCE_DIR}/examples/lock-app/nrf5/main/include
-
     ${NRF5_PLATFORM_DIR}/app/include
     ${NRF5_PLATFORM_DIR}/app/project_include
     ${NRF5_PLATFORM_DIR}/util/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/main/include
 
     ${NRF5_SDK_ROOT}/components
     ${NRF5_SDK_ROOT}/components/boards
@@ -107,7 +94,13 @@ set(COMMON_INCLUDES
     ${NRF5_SDK_ROOT}/external/nRF-IEEE-802.15.4-radio-driver/src/fem/three_pin_gpio
     ${NRF5_SDK_ROOT}/external/nRF-IEEE-802.15.4-radio-driver/src/rsch/raal
     ${NRF5_SDK_ROOT}/external/nRF-IEEE-802.15.4-radio-driver/src/rsch/raal/softdevice
+    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/config
+    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/include
+    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/nrf_cc310_plat/include
+    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/mbedtls_plat_config
     ${NRF5_SDK_ROOT}/external/openthread/include
+    ${NRF5_SDK_ROOT}/external/openthread/project/config
+    ${NRF5_SDK_ROOT}/external/openthread/project/nrf52840
     ${NRF5_SDK_ROOT}/external/segger_rtt
     ${NRF5_SDK_ROOT}/integration/nrfx
     ${NRF5_SDK_ROOT}/integration/nrfx/legacy
@@ -118,92 +111,25 @@ set(COMMON_INCLUDES
 )
 
 set(NDK5_LIBS
-    ${NRF5_SDK_ROOT}/external/openthread/lib/nrf52840/gcc/libopenthread-cli-ftd.a
-    ${NRF5_SDK_ROOT}/external/openthread/lib/nrf52840/gcc/libopenthread-ftd.a
-    ${NRF5_SDK_ROOT}/external/openthread/lib/nrf52840/gcc/libopenthread-platform-utils.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedcrypto_glue.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedcrypto_glue_cc310.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedcrypto_glue_vanilla.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedcrypto_cc310_backend.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedcrypto_vanilla_backend.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedtls_base_vanilla.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedtls_tls_vanilla.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedtls_x509_vanilla.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libnrf_cc310_platform_0.9.1.a
-    ${NRF5_SDK_ROOT}/external/openthread/lib/nrf52840/gcc/libopenthread-nrf52840-softdevice-sdk.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedcrypto_glue.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedcrypto_glue_cc310.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedcrypto_glue_vanilla.a
-    ${NRF5_SDK_ROOT}/external/openthread/lib/nrf52840/gcc/libnordicsemi-nrf52840-radio-driver-softdevice.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedcrypto_cc310_backend.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedcrypto_vanilla_backend.a
-    ${NRF5_SDK_ROOT}/external/openthread/lib/nrf52840/gcc/libopenthread-platform-utils.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedtls_base_vanilla.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedtls_tls_vanilla.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libmbedtls_x509_vanilla.a
-    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib/libnrf_cc310_platform_0.9.1.a
-    ${NRF5_SDK_ROOT}/external/openthread/lib/nrf52840/gcc/libopenthread-ftd.a
+    -Wl,--start-group
+    libopenthread-cli-ftd.a
+    libopenthread-ftd.a
+    libopenthread-platform-utils.a
+    libmbedcrypto_glue.a
+    libmbedcrypto_glue_cc310.a
+    libmbedcrypto_glue_vanilla.a
+    libmbedcrypto_cc310_backend.a
+    libmbedcrypto_vanilla_backend.a
+    libmbedtls_base_vanilla.a
+    libmbedtls_tls_vanilla.a
+    libmbedtls_x509_vanilla.a
+    libnrf_cc310_platform_0.9.1.a
+    libopenthread-nrf52840-softdevice-sdk.a
+    libnordicsemi-nrf52840-radio-driver-softdevice.a
+    -Wl,--end-group
 )
 
-
-set(COMMON_LIBS
-    ${PLATFORM_LINK_START}
-    ${Chip_LIBRARIES}
-    DeviceLayer
-#   ${NDK5_LIBS}
-    ${PLATFORM_LINK_END}
-#    ${CHIP_PLATFORM_LIBS}
-    chip-config
-)
-
-set(COMMON_DEFINES
-    NRF52840_XXAA
-    BOARD_PCA10056
-    BSP_DEFINES_ONLY
-    FLOAT_ABI_HARD
-    SOFTDEVICE_PRESENT
-    S140
-    __HEAP_SIZE=40960
-    __STACK_SIZE=8192
-    CONFIG_GPIO_AS_PINRESET
-    PRINTF_DISABLE_SUPPORT_EXPONENTIAL
-
-    FREERTOS
-    NRFX_PRS_ENABLED=0
-    NRF_SD_BLE_API_VERSION=7
-    UART0_ENABLED=0
-    UART1_ENABLED=1
-    USE_APP_CONFIG
-
-    CHIP_ENABLE_OPENTHREAD=0
-    #ENABLE_FEM
-    #MULTIPROTOCOL_802154_CONFIG_PRESENT
-    #OPENTHREAD_CONFIG_COAP_API_ENABLE
-    #OPENTHREAD_CONFIG_ENABLE_BUILTIN_MBEDTLS=0
-    #OPENTHREAD_CONFIG_FILE=\"openthread-config-wrap.h\"
-    #OPENTHREAD_FTD=1
-    #THREAD_EXAMPLE_COAP_SERVER=1
-    #THREAD_EXAMPLE_FREERTOS=1
-
-    #MBEDTLS_CONFIG_FILE=\"nrf-config.h\"
-    #MBEDTLS_USER_CONFIG_FILE=\"nrf52840-mbedtls-config.h\"
-)
-
-set(COMMON_LDPATH)
-
-add_executable(lock-app
-    main/AppTask.cpp
-    main/BoltLockManager.cpp
-    main/DataModelHandler.cpp
-    main/main.cpp
-
-    ${NRF5_PLATFORM_DIR}/app/support/CXXExceptionStubs.cpp
-    ${NRF5_PLATFORM_DIR}/app/support/nRF5Sbrk.c
-    ${NRF5_PLATFORM_DIR}/app/support/FreeRTOSNewlibLockSupport.c
-    ${NRF5_PLATFORM_DIR}/app/Server.cpp
-    ${NRF5_PLATFORM_DIR}/app/chipinit.cpp
-    ${NRF5_PLATFORM_DIR}/util/LEDWidget.cpp
-
+target_sources(chipPlatform PRIVATE
     ${NRF5_SDK_ROOT}/components/ble/common/ble_advdata.c
     ${NRF5_SDK_ROOT}/components/ble/common/ble_srv_common.c
     ${NRF5_SDK_ROOT}/components/ble/nrf_ble_gatt/nrf_ble_gatt.c
@@ -262,11 +188,96 @@ add_executable(lock-app
     ${NRF5_SDK_ROOT}/modules/nrfx/drivers/src/prs/nrfx_prs.c
     ${NRF5_SDK_ROOT}/modules/nrfx/mdk/gcc_startup_nrf52840.S
     ${NRF5_SDK_ROOT}/modules/nrfx/mdk/system_nrf52840.c
+    ${NRF5_SDK_ROOT}/modules/nrfx/drivers/src/nrfx_power.c
+    ${NRF5_SDK_ROOT}/examples/multiprotocol/app_utils/multiprotocol_802154_config.c
+    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/nrf_cc310_plat/src/nrf_cc310_platform_mutex_freertos.c
+    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/nrf_cc310_plat/src/nrf_cc310_platform_abort_freertos.c
 )
 
-target_include_directories(lock-app PRIVATE ${COMMON_INCLUDES})
-target_compile_definitions(lock-app PRIVATE ${COMMON_DEFINES})
-target_link_libraries(lock-app PRIVATE ${COMMON_LIBS})
-target_link_directories(lock-app PRIVATE ${COMMON_LDPATH})
+target_include_directories(chipPlatform PUBLIC ${COMMON_INCLUDES})
+target_compile_definitions(chipPlatform PUBLIC
+    BOARD_PCA10056
+    BSP_DEFINES_ONLY
+    CHIP_ENABLE_OPENTHREAD=1
+    CONFIG_GPIO_AS_PINRESET
+    ENABLE_FEM
+    FLOAT_ABI_HARD
+    FREERTOS
+    MBEDTLS_CONFIG_FILE=\"nrf-config.h\"
+    MBEDTLS_USER_CONFIG_FILE=\"nrf52840-mbedtls-config.h\"
+    MULTIPROTOCOL_802154_CONFIG_PRESENT
+    NRF52840_XXAA
+    NRFX_PRS_ENABLED=0
+    NRF_SD_BLE_API_VERSION=7
+    OPENTHREAD_CONFIG_COAP_API_ENABLE
+    OPENTHREAD_CONFIG_ENABLE_BUILTIN_MBEDTLS=0
+    OPENTHREAD_CONFIG_FILE=\"openthread-config-wrap.h\"
+    OPENTHREAD_FTD=1
+    PRINTF_DISABLE_SUPPORT_EXPONENTIAL
+    S140
+    SOFTDEVICE_PRESENT
+    THREAD_EXAMPLE_COAP_SERVER=1
+    THREAD_EXAMPLE_FREERTOS=1
+    UART0_ENABLED=0
+    UART1_ENABLED=1
+    USE_APP_CONFIG
+    __HEAP_SIZE=40960
+    __STACK_SIZE=8192
+)
 
-add_dependencies(lock-app Chip)
+
+set(COMMON_OPTIONS
+    -mthumb
+    -mcpu=cortex-m4
+    -march=armv7e-m
+    -mfpu=fpv4-sp-d16
+    -mabi=aapcs
+    -mfloat-abi=hard
+    --specs=nano.specs
+    -g -Os
+)
+target_compile_options(chipPlatform PUBLIC
+    ${COMMON_OPTIONS}
+)
+
+chip_compose_library(CHIP
+    lwipTargetNrf5
+    lwipInternal
+    ChipCore
+    ChipCryptombedTLS
+    DeviceLayerNrf5
+    DeviceLayerOpenThread
+    BleLayer
+    UdpEndPoint
+    TcpEndPoint
+    RawEndPoint
+)
+target_link_libraries(CHIP PUBLIC chipPlatform)
+
+#
+# Create the executable target.
+#
+add_executable(lock-app "")
+target_sources(lock-app PRIVATE
+    main/AppTask.cpp
+    main/BoltLockManager.cpp
+    main/DataModelHandler.cpp
+    main/main.cpp
+    ${NRF5_PLATFORM_DIR}/app/support/CXXExceptionStubs.cpp
+    ${NRF5_PLATFORM_DIR}/app/support/nRF5Sbrk.c
+    ${NRF5_PLATFORM_DIR}/app/support/FreeRTOSNewlibLockSupport.c
+    ${NRF5_PLATFORM_DIR}/app/Server.cpp
+    ${NRF5_PLATFORM_DIR}/app/chipinit.cpp
+    ${NRF5_PLATFORM_DIR}/util/LEDWidget.cpp
+)
+target_link_libraries(lock-app PRIVATE chipPlatform CHIP ${NDK5_LIBS})
+target_link_directories(lock-app PUBLIC
+    ${NRF5_SDK_ROOT}/external/openthread/lib/nrf52840/gcc
+    ${NRF5_SDK_ROOT}/external/openthread/nrf_security/lib
+    ${NRF5_SDK_ROOT}/modules/nrfx/mdk
+)
+target_link_options(lock-app PUBLIC
+    ${COMMON_OPTIONS}
+    -Wl,--gc-sections
+    -T${LINKER_SCRIPT}
+)
