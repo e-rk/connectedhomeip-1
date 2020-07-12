@@ -20,43 +20,29 @@
 #      This file is the CMake template for the CHIP SDK Device Layer tests.
 #
 
-add_library(DeviceLayerTests
+add_library(DeviceLayerTests STATIC EXCLUDE_FROM_ALL "")
+target_sources(DeviceLayerTests
+PRIVATE
     TestPlatformMgr.cpp
     TestPlatformTime.cpp
     TestConfigurationMgr.cpp
 )
 
-target_include_directories(DeviceLayerTests PUBLIC
-    ${PROJECT_BINARY_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/src/platform
-)
-
-target_link_libraries(DeviceLayerTests PUBLIC
+target_link_libraries(DeviceLayerTests
+PUBLIC
     DeviceLayer
-    InetLayer
-    SystemLayer
-    SupportLayer
     nlunit-test
-    nlfaultinjection
-    ${CHIP_PLATFORM_LIBS}
-    chip-config
 )
 
-add_executable(TestPlatformTime TestPlatformTimeDriver.cpp)
+if (BUILD_TESTING)
+
+chip_add_test(TestPlatformTime TestPlatformTimeDriver.cpp)
 target_link_libraries(TestPlatformTime PRIVATE DeviceLayerTests)
-add_test(NAME TestPlatformTime COMMAND TestPlatformTime)
-add_dependencies(check TestPlatformTime)
 
-add_executable(TestPlatformMgr TestPlatformMgrDriver.cpp)
+chip_add_test(TestPlatformMgr TestPlatformMgrDriver.cpp)
 target_link_libraries(TestPlatformMgr PRIVATE DeviceLayerTests)
-add_test(NAME TestPlatformMgr COMMAND TestPlatformMgr)
-add_dependencies(check TestPlatformMgr)
 
-add_executable(TestPlatformConfigurationMgr TestConfigurationMgrDriver.cpp)
+chip_add_test(TestPlatformConfigurationMgr TestConfigurationMgrDriver.cpp)
 target_link_libraries(TestPlatformConfigurationMgr PRIVATE DeviceLayerTests)
-add_test(NAME TestPlatformConfigurationMgr COMMAND TestPlatformConfigurationMgr)
-add_dependencies(check TestPlatformConfigurationMgr)
+
+endif (BUILD_TESTING)

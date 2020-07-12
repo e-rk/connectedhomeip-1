@@ -17,15 +17,10 @@
 
 #
 #    Description:
-#      This file is the CMake template for the nlunit-test library.
+#      CMake build system description for 'inipp' external module.
 #
 
-add_library(nlunit-test STATIC "")
-target_sources(nlunit-test
-PRIVATE
-    repo/src/nlunit-test.c
-)
-target_include_directories(nlunit-test
-PUBLIC
-    repo/src
+add_library(inipp INTERFACE)
+target_include_directories(inipp INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/repo/inipp
 )

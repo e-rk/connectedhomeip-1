@@ -21,57 +21,36 @@
 #      The Device Layer defines and implements platform abstractions to port a platform to CHIP.
 #
 
-add_library(DeviceLayer)
-
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src/
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/system
-)
-
-set(COMMON_SOURCES
+add_library(DeviceLayer STATIC "")
+target_sources(DeviceLayer
+PRIVATE
     PersistedStorage.cpp
     SystemEventSupport.cpp
     SystemTimerSupport.cpp
     GeneralUtils.cpp
     Globals.cpp
 )
-
-set(COMMON_LIBS)
-
-if(${CHIP_PLATFORM} STREQUAL "nrf52840")
-set(COMMON_INCLUDES ${COMMON_INCLUDES}
-    # DeviceLayer BSP
-    ${NRF5_SDK_ROOT}/components/ble/common
-    ${NRF5_SDK_ROOT}/components/ble/nrf_ble_gatt
-    ${NRF5_SDK_ROOT}/components/libraries/fds
-    ${NRF5_SDK_ROOT}/components/libraries/mem_manager
+target_link_libraries(DeviceLayer
+PUBLIC
+    ChipConfig
+    SupportLayer
+    SystemLayer
+    InetLayer
+    nlassert
+    nlio
 )
 
-set(COMMON_SOURCES ${COMMON_SOURCES}
-    nRF5/BLEManagerImpl.cpp
-    nRF5/ConfigurationManagerImpl.cpp
-    nRF5/ConnectivityManagerImpl.cpp
-    nRF5/PlatformManagerImpl.cpp
-    nRF5/nRF5Config.cpp
-    nRF5/nRF5Utils.cpp
-    nRF5/Logging.cpp
-    nRF5/ThreadStackManagerImpl.cpp
-    FreeRTOS/SystemTimeSupport.cpp
-    OpenThread/OpenThreadUtils.cpp
-)
+add_library(DeviceLayerConfig INTERFACE)
+target_link_libraries(ChipConfig INTERFACE DeviceLayerConfig)
 
-set(COMMON_LIBS ${COMMON_LIBS}
-    BleLayer
-)
-endif()
 
-if(${CHIP_PLATFORM} STREQUAL "linux")
-add_subdirectory(tests)
+#
+# Linux target
+#
+if ("${CHIP_DEVICE_LAYER}" STREQUAL "Linux")
 
-set(COMMON_SOURCES
-    ${COMMON_SOURCES}
+target_sources(DeviceLayer
+PRIVATE
     Linux/BLEManagerImpl.cpp
     Linux/CHIPLinuxStorage.cpp
     Linux/CHIPLinuxStorageIni.cpp
@@ -81,11 +60,103 @@ set(COMMON_SOURCES
     Linux/PlatformManagerImpl.cpp
     Linux/PosixConfig.cpp
     Linux/SystemTimeSupport.cpp
+    Linux/ThreadStackManagerImpl.cpp
+    ${COMMON_SOURCES}
 )
-endif()
+target_compile_definitions(DeviceLayerConfig
+INTERFACE
+    CHIP_DEVICE_LAYER_TARGET_LINUX=1
+    CHIP_DEVICE_LAYER_TARGET=Linux
+    BLE_PLATFORM_CONFIG_INCLUDE=<platform/Linux/BlePlatformConfig.h>
+    INET_PLATFORM_CONFIG_INCLUDE=<platform/Linux/InetPlatformConfig.h>
+    SYSTEM_PLATFORM_CONFIG_INCLUDE=<platform/Linux/SystemPlatformConfig.h>
+    CHIP_PLATFORM_CONFIG_INCLUDE=<platform/Linux/CHIPPlatformConfig.h>
+    CHIP_DEVICE_PLATFORM_CONFIG_INCLUDE=<platform/Linux/CHIPDevicePlatformConfig.h>
+    CHIP_LOGGING_STYLE_STDIO=1
+    HAVE_MALLOC=1
+    HAVE_FREE=1
+    HAVE_CLOCK_GETTIME=1
+    HAVE_NETINET_ICMP6_H=1
+    HAVE_ICMP6_FILTER=1
+)
+endif ()
 
-target_include_directories(DeviceLayer PRIVATE ${COMMON_INCLUDES})
+#
+# nRF5 target
+#
+if ("${CHIP_DEVICE_LAYER}" STREQUAL "nrf52840")
 
-target_sources(DeviceLayer PRIVATE ${COMMON_SOURCES})
+target_sources(DeviceLayer
+PRIVATE
+    nRF5/BLEManagerImpl.cpp
+    nRF5/ConfigurationManagerImpl.cpp
+    nRF5/ConnectivityManagerImpl.cpp
+    nRF5/PlatformManagerImpl.cpp
+    nRF5/nRF5Config.cpp
+    nRF5/nRF5Utils.cpp
+    nRF5/Logging.cpp
+    nRF5/ThreadStackManagerImpl.cpp
+    FreeRTOS/SystemTimeSupport.cpp
+    ${COMMON_SOURCES}
+)
+target_compile_definitions(DeviceLayerConfig
+INTERFACE
+    BLE_PLATFORM_CONFIG_INCLUDE=<platform/nRF5/BlePlatformConfig.h>
+    INET_PLATFORM_CONFIG_INCLUDE=<platform/nRF5/InetPlatformConfig.h>
+    SYSTEM_PLATFORM_CONFIG_INCLUDE=<platform/nRF5/SystemPlatformConfig.h>
+    CHIP_PLATFORM_CONFIG_INCLUDE=<platform/nRF5/CHIPPlatformConfig.h>
+    CHIP_DEVICE_PLATFORM_CONFIG_INCLUDE=<platform/nRF5/CHIPDevicePlatformConfig.h>
+    CHIP_DEVICE_LAYER_TARGET=nRF5
+    CHIP_DEVICE_LAYER_TARGET_NRF5=1
+    CHIP_LOGGING_STYLE_EXTERNAL=1
+    CHIP_TARGET_STYLE_EMBEDDED=1
+)
 
-target_link_libraries(DeviceLayer PRIVATE ${COMMON_LIBS} chip-config)
+endif ()
+
+#
+# nRF Connect SDK target
+#
+if ("${CHIP_DEVICE_LAYER}" STREQUAL "nrfconnect")
+
+target_sources(DeviceLayer
+PRIVATE
+    nrfconnect/BLEManagerImpl.cpp
+    nrfconnect/ConfigurationManagerImpl.cpp
+    nrfconnect/ConnectivityManagerImpl.cpp
+    nrfconnect/PlatformManagerImpl.cpp
+    nrfconnect/ZephyrConfig.cpp
+    nrfconnect/Logging.cpp
+    nrfconnect/ThreadStackManagerImpl.cpp
+    Zephyr/SystemTimeSupport.cpp
+    ${COMMON_SOURCES}
+)
+target_compile_definitions(DeviceLayerConfig
+INTERFACE
+    BLE_PLATFORM_CONFIG_INCLUDE=<platform/nrfconnect/BlePlatformConfig.h>
+    INET_PLATFORM_CONFIG_INCLUDE=<platform/nrfconnect/InetPlatformConfig.h>
+    SYSTEM_PLATFORM_CONFIG_INCLUDE=<platform/nrfconnect/SystemPlatformConfig.h>
+    CHIP_PLATFORM_CONFIG_INCLUDE=<platform/nrfconnect/CHIPPlatformConfig.h>
+    CHIP_DEVICE_PLATFORM_CONFIG_INCLUDE=<platform/nrfconnect/CHIPDevicePlatformConfig.h>
+    CHIP_DEVICE_LAYER_TARGET=nrfconnect
+    CHIP_DEVICE_LAYER_TARGET_NRFCONNECT=1
+    CHIP_LOGGING_STYLE_EXTERNAL=1
+    CHIP_TARGET_STYLE_EMBEDDED=1
+    HAVE_GETTIMEOFDAY=1
+)
+
+endif ()
+
+if (CHIP_ENABLE_OPENTHREAD)
+
+target_sources(DeviceLayer
+PRIVATE
+    OpenThread/OpenThreadUtils.cpp
+)
+target_compile_definitions(DeviceLayerConfig
+INTERFACE
+    CHIP_ENABLE_OPENTHREAD=1)
+
+endif ()
+
+add_subdirectory(tests)

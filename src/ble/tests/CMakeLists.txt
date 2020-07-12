@@ -20,35 +20,15 @@
 #      This file is the CMake template for the CHIP SDK BLE library tests.
 #
 
-add_library(BleLayerTests
+add_library(BleLayerTests STATIC "")
+target_sources(BleLayerTests
+PRIVATE
     TestBleErrorStr.cpp
 )
-
-target_include_directories(BleLayerTests PUBLIC
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${NLUNIT_TEST_INCLUDES}
-)
-
-target_link_libraries(BleLayerTests PUBLIC 
-    BleLayer
-    SupportLayer
+target_link_libraries(BleLayerTests
+PUBLIC
     nlunit-test
-    ${CHIP_PLATFORM_LIBS}
-    chip-config
 )
 
-target_link_directories(BleLayerTests PUBLIC
-    ${NLUNIT_TEST_LDPATH}
-)
-
-#### TestBleErrorStr
-
-add_executable(TestBleErrorStr
-    TestBleErrorStrDriver.cpp
-)
-
+chip_add_test(TestBleErrorStr TestBleErrorStrDriver.cpp)
 target_link_libraries(TestBleErrorStr PRIVATE BleLayerTests)
-add_test(NAME TestBleErrorStr COMMAND TestBleErrorStr)
-add_dependencies(check TestBleErrorStr)

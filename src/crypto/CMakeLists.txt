@@ -20,29 +20,52 @@
 #      This file is the CMake template for the CHIP SDK Cryptography library.
 #
 
+
 add_subdirectory(tests)
 
-add_library(ChipCrypto)
-
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/third_party/mbedtls/repo/include
+add_library(ChipCrypto STATIC "")
+target_include_directories(ChipCrypto
+PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(ChipCrypto
+PUBLIC
+    ChipConfig
+    SupportLayer
 )
 
-if (CHIP_CRYPTO_MBEDTLS)
-set(COMMON_SOURCES CHIPCryptoPALmbedTLS.cpp)
+add_library(ChipCryptoConfig INTERFACE)
+target_link_libraries(ChipConfig INTERFACE ChipCryptoConfig)
+
+if ("${CHIP_CRYPTO}" STREQUAL "openssl")
+
+find_package(OpenSSL REQUIRED)
+
+target_sources(ChipCrypto
+PRIVATE
+    CHIPCryptoPALOpenSSL.cpp
+)
+target_link_libraries(ChipCrypto
+PUBLIC
+    OpenSSL::SSL
+)
+target_compile_definitions(ChipCryptoConfig
+INTERFACE
+    CHIP_CRYPTO_OPENSSL=1
+)
+
 endif ()
 
-if (CHIP_CRYPTO_OPENSSL)
-set(COMMON_SOURCES CHIPCryptoPALOpenSSL.cpp)
+if ("${CHIP_CRYPTO}" STREQUAL "mbedtls")
+
+target_sources(ChipCrypto
+PRIVATE
+    CHIPCryptoPALmbedTLS.cpp
+)
+target_compile_definitions(ChipCryptoConfig
+INTERFACE
+    CHIP_CRYPTO_MBEDTLS=1
+)
+# target_link_libraries() mbedtls
+
 endif ()
-
-target_compile_definitions(ChipCrypto PRIVATE)
-target_compile_options(ChipCrypto PRIVATE)
-target_include_directories(ChipCrypto PRIVATE ${COMMON_INCLUDES})
-target_sources(ChipCrypto PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(ChipCrypto PRIVATE chip-config)

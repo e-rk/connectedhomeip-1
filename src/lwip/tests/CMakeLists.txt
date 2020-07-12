@@ -17,8 +17,12 @@
 
 #
 #    Description:
-#      This file is the CHIP SDK CMake template for defining the arm-none-eabi toolchain.
+#      This file is the CMake template for the CHIP SDK LWIP testing code.
 #
 
-set(CMAKE_C_COMPILER        "gcc")
-set(CMAKE_CXX_COMPILER      "g++")
+if (CHIP_ENABLE_LWIP_INTERNAL AND BUILD_TESTING)
+
+# chip_add_test(TestLwip tests.c)
+# target_link_libraries(TestLwip PRIVATE lwipInternal lwipStandalone chipPlatform)
+
+endif (CHIP_ENABLE_LWIP_INTERNAL AND BUILD_TESTING)

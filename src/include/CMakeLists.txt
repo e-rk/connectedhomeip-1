@@ -20,12 +20,10 @@
 #      This file is the CMake template for the CHIP SDK public headers.
 #
 
-add_custom_command(
-    OUTPUT OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CHIPVersion.h
-    COMMAND ${PROJECT_SOURCE_DIR}/scripts/gen-chip-version.sh -o CHIPVersion.h `cat ${PROJECT_SOURCE_DIR}/.default-version`
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS ${PROJECT_SOURCE_DIR}/.default-version
+add_custom_target(ChipVersionHeader
+    ${CHIP_PROJECT_SOURCE_DIR}/scripts/gen-chip-version.sh -o CHIPVersion.h `cat ${CHIP_PROJECT_SOURCE_DIR}/.default-version`
+    BYPRODUCTS ${CMAKE_BINARY_DIR}/CHIPVersion.h
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS ${CHIP_PROJECT_SOURCE_DIR}/.default-version
 )
-
-add_custom_target(chip-includes DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CHIPVersion.h)
-
+add_dependencies(ChipConfig ChipVersionHeader)

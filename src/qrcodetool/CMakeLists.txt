@@ -17,14 +17,17 @@
 
 #
 #    Description:
-#      This file is the CMake template for defining the `check` target for building and running tests.
+#      Build system description for the qrcodetool.
 #
 
-#
-# Enable cmake test framework: 
-#   Adds 'check' target to build and run tests.
-#   Enables default 'test' target that runs pre-built tests.
-#
-include(CTest)
-enable_testing()
-add_custom_target(check ${CMAKE_CTEST_COMMAND} -V)
+if (CHIP_BUILD_TOOLS)
+
+add_executable(qrcodetool qrcodetool.cpp setup_payload_commands.cpp)
+target_include_directories(qrcodetool PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(qrcodetool
+PRIVATE
+    CHIP
+    SetupPayload
+)
+
+endif (CHIP_BUILD_TOOLS)

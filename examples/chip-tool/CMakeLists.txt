@@ -17,16 +17,24 @@
 
 #
 #    Description:
-#      CMake configuration for the Espressif ESP32 platform.
-# 
-
-#
-# Define chip-config interface library to provide defines and include paths for platform
+#      This file is the CMake template for building the chip-tool executable.
 #
 
-add_library(chip-config INTERFACE)
+cmake_minimum_required(VERSION 3.16.3)
+project(chip-shell LANGUAGES C CXX)
 
-target_compile_definitions(chip-config INTERFACE
-    "CHIP_SYSTEM_CONFIG_USE_SOCKETS=0"
-    "CHIP_SYSTEM_CONFIG_USE_LWIP=1"
+include(third_party/connectedhomeip/integrations/cmake/extensions.cmake)
+chip_example("" "standalone")
+
+if (NOT TARGET chipPlatform)
+set(CHIP_PLATFORM "standalone")
+option(BUILD_TESTING "Enable tests" OFF)
+add_subdirectory(third_party/connectedhomeip)
+endif ()
+
+add_executable(chip-tool
+    main.cpp
+)
+target_link_libraries(chip-tool PRIVATE
+    CHIP
 )

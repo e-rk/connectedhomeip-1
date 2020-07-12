@@ -22,17 +22,9 @@
 
 add_subdirectory(tests)
 
-add_library(SetupPayload)
-
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src/
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/lib/core
-    ${PROJECT_SOURCE_DIR}/src/system
-)
-
-set(COMMON_SOURCES
+add_library(SetupPayload STATIC "")
+target_sources(SetupPayload
+PRIVATE
     ManualSetupPayloadGenerator.cpp
     ManualSetupPayloadParser.cpp
     QRCodeSetupPayloadGenerator.cpp
@@ -41,10 +33,12 @@ set(COMMON_SOURCES
     QRCodeSetupPayloadParser.cpp
     SetupPayloadHelper.cpp
 )
-
-target_compile_definitions(SetupPayload PRIVATE)
-target_compile_options(SetupPayload PRIVATE)
-target_include_directories(SetupPayload PRIVATE ${COMMON_INCLUDES})
-target_sources(SetupPayload PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(SetupPayload PRIVATE chip-config)
+target_include_directories(SetupPayload
+PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(SetupPayload
+PUBLIC
+    Core
+    ChipConfig
+)

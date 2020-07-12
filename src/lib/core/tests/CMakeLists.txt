@@ -20,41 +20,24 @@
 #      This file is the CMake template for the CHIP SDK core library tests.
 #
 
-add_library(ChipCoreTests
+add_library(ChipCoreTests STATIC EXCLUDE_FROM_ALL "")
+target_sources(ChipCoreTests
+PRIVATE
     TestCHIPErrorStr.cpp
     TestCHIPTLV.cpp
 )
-
-target_include_directories(ChipCoreTests PUBLIC
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${NLUNIT_TEST_INCLUDES}
-)
-
-target_link_libraries(ChipCoreTests PUBLIC 
-    SystemLayer
-    SupportLayer
-    ChipCore
+target_link_libraries(ChipCoreTests
+PUBLIC
+    Core
     nlunit-test
-    nlfaultinjection
-    ${CHIP_PLATFORM_LIBS}
-    chip-config
 )
 
-target_link_directories(ChipCoreTests PUBLIC
-    ${NLUNIT_TEST_LDPATH}
-    ${NLFAULT_INJECTION_LDPATH}
-)
+if (BUILD_TESTING)
 
-#### TestCHIPErrorStr
-add_executable(TestCHIPErrorStr TestCHIPErrorStrDriver.cpp)
+chip_add_test(TestCHIPErrorStr TestCHIPErrorStrDriver.cpp)
 target_link_libraries(TestCHIPErrorStr PRIVATE ChipCoreTests)
-add_test(NAME TestCHIPErrorStr COMMAND TestCHIPErrorStr)
-add_dependencies(check TestCHIPErrorStr)
 
-#### TestCHIPTLV
-add_executable(TestCHIPTLV TestCHIPTLVDriver.cpp)
+chip_add_test(TestCHIPTLV TestCHIPTLVDriver.cpp)
 target_link_libraries(TestCHIPTLV PRIVATE ChipCoreTests)
-add_test(NAME TestCHIPTLV COMMAND TestCHIPTLV)
-add_dependencies(check TestCHIPTLV)
+
+endif (BUILD_TESTING)

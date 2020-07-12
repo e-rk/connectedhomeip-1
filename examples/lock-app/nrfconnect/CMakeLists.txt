@@ -14,17 +14,24 @@
 #    limitations under the License.
 #
 cmake_minimum_required(VERSION 3.13.1)
-
-set(CHIP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/connectedhomeip)
-get_filename_component(CHIP_ROOT ${CHIP_ROOT} REALPATH)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CHIP_ROOT}/config/nrfconnect/)
+include(third_party/connectedhomeip/integrations/cmake/extensions.cmake)
+chip_example("" "nrfconnect")
 
 # Make sure all components can see our mbedtls config
 include_directories(AFTER main/include ${CHIP_ROOT}/src/app/util main)
 
-include(nrfconnect-app)
+set(BOARD "nrf52840dk_nrf52840")
+find_package(Zephyr HINTS $ENV{ZEPHYR_BASE})
 
 project(chip-nrf52840-lock-example)
+
+add_library(chipPlatform ALIAS app)
+add_subdirectory(third_party/connectedhomeip)
+target_compile_definitions(ChipConfig
+INTERFACE
+    _SYS__PTHREADTYPES_H_
+)
+
 target_sources(app PRIVATE
                main/AppTask.cpp
                main/BoltLockManager.cpp
@@ -46,3 +53,22 @@ target_sources(app PRIVATE
                ${CHIP_ROOT}/src/app/util/process-global-message.c
                ${CHIP_ROOT}/src/app/util/util.c
                ${CHIP_ROOT}/src/app/clusters/on-off-server/on-off.c)
+    main/AppTask.cpp
+    main/BoltLockManager.cpp
+    main/DataModelHandler.cpp
+    main/main.cpp
+    main/LEDWidget.cpp
+    main/Server.cpp
+)
+target_link_libraries(app
+PRIVATE
+    CHIP
+    InetLayer
+    TransportLayer
+    DeviceLayer
+    ChipCrypto
+    SupportLayer
+    ChipConfig
+    ChipDataModel
+)
+# TODO(raku)

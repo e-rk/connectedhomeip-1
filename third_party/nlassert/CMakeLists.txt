@@ -20,69 +20,26 @@
 #      This file is the CMake template for the nlassert library.
 #
 
-if (BUILD_EXTERNALS_WITH_CMAKE)
 
-#
-# Build external project with cmake
-#
-add_library(nlassert INTERFACE)     # Tag header-only library as INTERFACE
+add_library(nlassert INTERFACE)
 
 target_include_directories(nlassert INTERFACE repo/include)
 
-#### tests common
-
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/third_party/nlunit-test/repo/src
-    repo/tests
+add_library(nlassertTests INTERFACE)
+target_link_libraries(nlassertTests INTERFACE
+nlassert
+nlunit-test
 )
 
-set(COMMON_LIBS
-    nlassert
-    nlunit-test
-    ${CHIP_PLATFORM_LIBS}
-    chip-config
-)
+if (BUILD_TESTING)
 
-#### nlassert-static-test-cxx
-add_executable(nlassert-static-test-cxx repo/tests/nlassert-static-test-cxx.cpp)
-target_include_directories(nlassert-static-test-cxx PRIVATE ${COMMON_INCLUDES})
-target_link_libraries(nlassert-static-test-cxx PRIVATE ${COMMON_LIBS})
-target_link_directories(nlassert-static-test-cxx PRIVATE ${COMMON_LDPATH})
-add_test(NAME nlassert-static-test-cxx COMMAND nlassert-static-test-cxx)
-add_dependencies(check nlassert-static-test-cxx)
+chip_add_test(nlassert-static-test-cxx repo/tests/nlassert-static-test-cxx.cpp)
+target_link_libraries(nlassert-static-test-cxx PRIVATE nlassertTests)
 
-#### nlassert-static-test
-add_executable(nlassert-static-test repo/tests/nlassert-static-test.c)
-target_include_directories(nlassert-static-test PRIVATE ${COMMON_INCLUDES})
-target_link_libraries(nlassert-static-test PRIVATE ${COMMON_LIBS})
-target_link_directories(nlassert-static-test PRIVATE ${COMMON_LDPATH})
-add_test(NAME nlassert-static-test COMMAND nlassert-static-test)
-add_dependencies(check nlassert-static-test)
+chip_add_test(nlassert-static-test repo/tests/nlassert-static-test.c)
+target_link_libraries(nlassert-static-test PRIVATE nlassertTests)
 
-#### nlassert-test
-add_executable(nlassert-test repo/tests/nlassert-test.c)
-target_include_directories(nlassert-test PRIVATE ${COMMON_INCLUDES})
-target_link_libraries(nlassert-test PRIVATE ${COMMON_LIBS})
-target_link_directories(nlassert-test PRIVATE ${COMMON_LDPATH})
-add_test(NAME nlassert-test COMMAND nlassert-test)
-add_dependencies(check nlassert-test)
+chip_add_test(nlassert-test repo/tests/nlassert-test.c)
+target_link_libraries(nlassert-test PRIVATE nlassertTests)
 
-else (BUILD_EXTERNALS_WITH_CMAKE)
-
-#
-# Build external project with autotools
-#
-
-include(ExternalProject)
-project(nlassert)
-ExternalProject_Add(nlassert
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/repo
-    CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/repo/configure --prefix=<INSTALL_DIR>
-    BUILD_COMMAND make
-)
-add_test(NAME nlassert-check
-    COMMAND make check
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/third_party/nlassert/nlassert-prefix/src/nlassert-build
-)
-
-endif (BUILD_EXTERNALS_WITH_CMAKE)
+endif (BUILD_TESTING)

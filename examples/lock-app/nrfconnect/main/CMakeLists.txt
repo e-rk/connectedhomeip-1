@@ -1,0 +1,9 @@
+chip_compose_library(CHIP
+    app
+    ChipCore
+    ChipCryptoMbedTLS
+    DeviceLayerNrfconnect
+    DeviceLayerOpenThread
+    UdpEndPoint
+    InetSockets
+)

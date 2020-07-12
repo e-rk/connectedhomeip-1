@@ -17,15 +17,29 @@
 
 #
 #    Description:
-#      This file is the CMake template for the nlunit-test library.
+#      Build system description for the CHIP ZCL tests.
 #
 
-add_library(nlunit-test STATIC "")
-target_sources(nlunit-test
-PRIVATE
-    repo/src/nlunit-test.c
-)
-target_include_directories(nlunit-test
+add_library(ChipZclPluginTests STATIC EXCLUDE_FROM_ALL "")
+target_sources(ChipZclPluginTests
 PUBLIC
-    repo/src
+    cluster-cmd-on-off-test.c
+    cluster-server-basic-test.c
+    cluster-server-identify-test.c
+    cluster-server-level-control-test.c
+    cluster-server-on-off-test.c
+    codec-simple-test.c
+    core-data-model-test.c
+    core-message-dispatch-test.c
 )
+target_link_libraries(ChipZclPluginTests
+PUBLIC
+    ChipDataModel
+)
+
+if (BUILD_TESTING)
+
+chip_add_test(TestChipZclPlugin ChipZclUnitTestsDriver.c)
+target_link_libraries(TestChipZclPlugin PRIVATE ChipZclPluginTests)
+
+endif (BUILD_TESTING)

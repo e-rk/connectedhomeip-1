@@ -22,19 +22,10 @@
 
 add_subdirectory(tests)
 
-add_library(SystemLayer)
+add_library(SystemLayer STATIC "")
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src/
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/lib/core
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/third_party/lwip/repo/lwip/src/include
-    ${PROJECT_SOURCE_DIR}/third_party/nlfaultinjection/repo/include
-)
-
-set(COMMON_SOURCES
+target_sources(SystemLayer
+PRIVATE
     SystemClock.cpp
     SystemError.cpp
     SystemLayer.cpp
@@ -44,11 +35,10 @@ set(COMMON_SOURCES
     SystemPacketBuffer.cpp
     SystemStats.cpp
     SystemFaultInjection.cpp
+    SystemWakeEvent.cpp
 )
-
-target_compile_definitions(SystemLayer PRIVATE)
-target_compile_options(SystemLayer PRIVATE)
-target_include_directories(SystemLayer PRIVATE ${COMMON_INCLUDES})
-target_sources(SystemLayer PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(SystemLayer PRIVATE chip-config)
+target_link_libraries(SystemLayer
+PUBLIC
+    ChipConfig
+    SupportLayer
+)

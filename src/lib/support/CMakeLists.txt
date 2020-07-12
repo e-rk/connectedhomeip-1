@@ -22,16 +22,10 @@
 
 add_subdirectory(tests)
 
-add_library(SupportLayer)
+add_library(SupportLayer STATIC "")
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src/
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/third_party/nlfaultinjection/repo/include
-)
-
-set(COMMON_SOURCES
+target_sources(SupportLayer
+PRIVATE
     Base64.cpp
     CHIPArgParser.cpp
     CHIPCounter.cpp
@@ -53,10 +47,19 @@ set(COMMON_SOURCES
     verhoeff/Verhoeff32.cpp
     verhoeff/Verhoeff36.cpp
 )
+target_link_libraries(SupportLayer
+PUBLIC
+    nlassert
+)
 
-target_compile_definitions(SupportLayer PRIVATE)
-target_compile_options(SupportLayer PRIVATE)
-target_include_directories(SupportLayer PRIVATE ${COMMON_INCLUDES})
-target_sources(SupportLayer PRIVATE ${COMMON_SOURCES})
+add_library(SupportLayerConfig INTERFACE)
+target_link_libraries(ChipConfig INTERFACE SupportLayerConfig)
 
-target_link_libraries(SupportLayer PRIVATE chip-config)
+if (CHIP_LOG_TIMESTAMPS)
+target_compile_definitions(SupportLayerConfig
+PUBLIC
+    CHIP_LOGGING_STYLE_STDIO_WITH_TIMESTAMPS=1
+)
+endif ()
+
+target_link_libraries(SupportLayer PUBLIC ChipConfig)

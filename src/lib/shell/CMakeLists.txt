@@ -20,38 +20,30 @@
 #      This file is the CMake template for the CHIP SDK shell library code.
 #
 
-add_library(ChipShell)
+add_library(ChipShell STATIC "")
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_BINARY_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/lib/shell
-    ${PROJECT_SOURCE_DIR}/third_party/nlassert/repo/include
-)
-
-set(COMMON_SOURCES
+target_sources(ChipShell
+PRIVATE
     commands.cpp
     streamer.cpp
     shell.cpp
 )
-
-add_dependencies(ChipShell
-    chip-includes
+target_include_directories(ChipShell
+PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(ChipShell
+PUBLIC
+    ChipConfig
+    SupportLayer
+    Core
 )
 
 if(CHIP_TARGET_STYLE_UNIX)
 add_subdirectory(tests)
 
-set(COMMON_SOURCES ${COMMON_SOURCES} 
+target_sources(ChipShell
+PRIVATE
     streamer_stdio.cpp
 )
 endif(CHIP_TARGET_STYLE_UNIX)
-
-target_compile_definitions(ChipShell PRIVATE)
-target_compile_options(ChipShell PRIVATE)
-target_include_directories(ChipShell PRIVATE ${COMMON_INCLUDES})
-target_sources(ChipShell PRIVATE ${COMMON_SOURCES})
-
-target_link_libraries(ChipShell PRIVATE chip-config)

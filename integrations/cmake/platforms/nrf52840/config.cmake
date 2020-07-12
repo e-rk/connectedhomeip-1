@@ -17,15 +17,5 @@
 
 #
 #    Description:
-#      This file is the CMake template for the nlunit-test library.
+#      This file is the CMake template for the nRF52840 CHIP library composition.
 #
-
-add_library(nlunit-test STATIC "")
-target_sources(nlunit-test
-PRIVATE
-    repo/src/nlunit-test.c
-)
-target_include_directories(nlunit-test
-PUBLIC
-    repo/src
-)

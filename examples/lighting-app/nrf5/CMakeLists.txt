@@ -17,18 +17,18 @@
 
 #
 #    Description:
-#      This file is the CMake template for building CHIP SDK lock-app example for Nordic nRF52840.
+#      This file is the CMake template for building CHIP SDK lighting-app example for Nordic nRF52840.
 #
 
 cmake_minimum_required(VERSION 3.16.3)
 include(third_party/connectedhomeip/integrations/cmake/extensions.cmake)
 chip_example("arm-none-eabi" "nrf52840")
 
-project(lock-app LANGUAGES C CXX ASM)
+project(lighting-app LANGUAGES C CXX ASM)
 
-option(BUILD_TESTING "Enable tests" OFF) # Disable testing by default.
 add_subdirectory(third_party/connectedhomeip)
 
+# The build of the CHIP library needs access to the app_config.h
 target_include_directories(CHIP PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/main/include
 )
@@ -36,11 +36,11 @@ target_include_directories(CHIP PUBLIC
 #
 # Create the executable target.
 #
-add_executable(lock-app "")
-target_sources(lock-app PRIVATE
+add_executable(lighting-app "")
+target_sources(lighting-app PRIVATE
     main/AppTask.cpp
-    main/BoltLockManager.cpp
+    main/LightingManager.cpp
     main/DataModelHandler.cpp
     main/main.cpp
 )
-target_link_libraries(lock-app PRIVATE CHIP)
+target_link_libraries(lighting-app PRIVATE CHIP)

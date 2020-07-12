@@ -20,68 +20,41 @@
 #      This file is the CMake template for the CHIP SDK network library tests.
 #
 
-add_library(InetLayerTests
+if (BUILD_TESTING)
+
+add_library(InetLayerTests STATIC "")
+target_sources(InetLayerTests
+PRIVATE
     TestInetAddress.cpp
     TestInetCommon.cpp
     TestInetCommonOptions.cpp
     TestInetErrorStr.cpp
     TestInetLayerCommon.cpp
 )
-
-target_include_directories(InetLayerTests
-  PUBLIC
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_BINARY_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/lib/core
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${NLFAULT_INJECTION_INCLUDES}
-    ${NLUNIT_TEST_INCLUDES}
-)
-
-target_link_libraries(InetLayerTests 
-  PUBLIC
+target_link_libraries(InetLayerTests
+PUBLIC
     InetLayer
-    SystemLayer
-    SupportLayer
     nlunit-test
-    nlfaultinjection
-    ${CHIP_PLATFORM_LIBS}
-    chip-config
+)
+target_include_directories(InetLayerTests
+PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_directories(InetLayerTests PUBLIC
-    ${NLUNIT_TEST_LDPATH}
-    ${NLFAULT_INJECTION_LDPATH}
-)
-
-#### TestInetAddress
-add_executable(TestInetAddress TestInetAddressDriver.cpp)
+chip_add_test(TestInetAddress  TestInetAddressDriver.cpp)
 target_link_libraries(TestInetAddress PRIVATE InetLayerTests)
-add_test(NAME TestInetAddress COMMAND TestInetAddress)
-add_dependencies(check TestInetAddress)
-
-#### TestInetEndPoint
-#add_executable(TestInetEndPoint TestInetEndPoint.cpp)
-#target_link_libraries(TestInetEndPoint PRIVATE InetLayerTests)
-# Disable based on #500 -- ipv6 support not working in CircleCI Docker
-# add_test(NAME TestInetEndPoint COMMAND TestInetEndPoint)
-# add_dependencies(check TestInetEndPoint)
-
-#### TestInetErrorStr
-add_executable(TestInetErrorStr TestInetErrorStrDriver.cpp)
+chip_add_test(TestInetErrorStr TestInetErrorStrDriver.cpp)
 target_link_libraries(TestInetErrorStr PRIVATE InetLayerTests)
-add_test(NAME TestInetErrorStr COMMAND TestInetErrorStr)
-add_dependencies(check TestInetErrorStr)
 
-if(NOT CONFIG_DEVICE_LAYER)
-
-#### TestInetLayerDNS
-add_executable(TestInetLayerDNS TestInetLayerDNS.cpp)
+if (INET_CONFIG_ENABLE_DNS_RESOLVER)
+chip_add_test(TestInetLayerDNS TestInetLayerDNS.cpp)
 target_link_libraries(TestInetLayerDNS PRIVATE InetLayerTests)
-# Disable based on #500 -- ipv6 support not working in CircleCI Docker
-# add_test(NAME TestInetLayerDNS COMMAND TestInetLayerDNS)
-# add_dependencies(check TestInetLayerDNS)
+endif ()
 
-endif(NOT CONFIG_DEVICE_LAYER)
+if (INET_CONFIG_ENABLE_TCP_ENDPOINT AND INET_CONFIG_ENABLE_RAW_ENDPOINT
+    AND INET_CONFIG_ENABLE_TUN_ENDPOINT AND INET_CONFIG_ENABLE_UDP_ENDPOINT)
+chip_add_test(TestInetEndPoint TestInetEndPoint.cpp)
+target_link_libraries(TestInetEndPoint PRIVATE InetLayerTests)
+endif ()
+
+endif ()

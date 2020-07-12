@@ -21,30 +21,31 @@
 #      and Bluetooth Transport Protocol (BTP) code.
 #
 
+if (CONFIG_NETWORK_LAYER_BLE)
+
 add_subdirectory(tests)
 
-add_library(BleLayer)
+add_library(BleLayer STATIC "")
 
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src/
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/lib/core
-    ${PROJECT_SOURCE_DIR}/src/system
-    ${PROJECT_SOURCE_DIR}/third_party/nlfaultinjection/repo/include
-)
-
-set(COMMON_SOURCES
+target_sources(BleLayer
+PRIVATE
     BleError.cpp
     BleLayer.cpp
     BleUUID.cpp
     BLEEndPoint.cpp
     BtpEngine.cpp
 )
+target_link_libraries(BleLayer
+PUBLIC
+    ChipConfig
+)
 
-target_compile_definitions(BleLayer PRIVATE)
-target_compile_options(BleLayer PRIVATE)
-target_include_directories(BleLayer PRIVATE ${COMMON_INCLUDES})
-target_sources(BleLayer PRIVATE ${COMMON_SOURCES})
+add_library(BleLayerConfig INTERFACE)
+target_compile_definitions(BleLayerConfig
+INTERFACE
+    CONFIG_NETWORK_LAYER_BLE=1
+)
 
-target_link_libraries(BleLayer PRIVATE chip-config)
+target_link_libraries(ChipConfig INTERFACE BleLayerConfig)
+
+endif ()

@@ -21,7 +21,12 @@
 #      data model, and ZigBee Cluster Library (ZCL) code.
 #
 
-add_library(ChipDataModel
+add_subdirectory(plugin/tests)
+
+add_library(ChipDataModel STATIC "")
+
+target_sources(ChipDataModel
+PRIVATE
     gen/gen-callback-stubs.c
     gen/gen-command-handler.c
     gen/gen-global-command-handler.c
@@ -36,22 +41,14 @@ add_library(ChipDataModel
     plugin/core-data-model/zcl-data-model.c
     plugin/core-message-dispatch/dispatch.c
 )
-
-set(COMMON_INCLUDES
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/app/chip-zcl
-    ${PROJECT_SOURCE_DIR}/src/app/gen
+target_include_directories(ChipDataModel
+PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/chip-zcl
+    ${CMAKE_CURRENT_SOURCE_DIR}/gen
 )
-
-set(COMMON_LIBS
+target_link_libraries(ChipDataModel
+PUBLIC
+    ChipConfig
     SystemLayer
-    SupportLayer
-    TransportLayer
-    TransportLayerTests
-    ${CHIP_PLATFORM_LIBS}
-    chip-config
 )
-
-target_include_directories(ChipDataModel PRIVATE ${COMMON_INCLUDES})
-target_link_libraries(ChipDataModel PRIVATE chip-config)

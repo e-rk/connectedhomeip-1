@@ -20,48 +20,29 @@
 #      This file is the CMake template for the CHIP SDK support library tests.
 #
 
-add_library(SupportLayerTests
+add_library(SupportLayerTests STATIC EXCLUDE_FROM_ALL "")
+target_sources(SupportLayerTests
+PRIVATE
     TestErrorStr.cpp
     TestTimeUtils.cpp
     TestCHIPArgParser.cpp
 )
 
-target_include_directories(SupportLayerTests PUBLIC
-    ${PROJECT_SOURCE_DIR}/src
-    ${PROJECT_SOURCE_DIR}/src/lib
-    ${PROJECT_SOURCE_DIR}/src/include
-    ${NLUNIT_TEST_INCLUDE}
-)
-
-target_link_libraries(SupportLayerTests PUBLIC 
+target_link_libraries(SupportLayerTests
+PUBLIC
     SupportLayer
     nlunit-test
-    ${CHIP_PLATFORM_LIBS}
-    chip-config
 )
 
-target_compile_definitions(SupportLayerTests PUBLIC
-     _GNU_SOURCE  # enable vasprintf
-)
+if (BUILD_TESTING)
 
-target_link_directories(SupportLayerTests PUBLIC
-    ${NLUNIT_TEST_LDPATH}
-)
-
-#### TestSupportErrorStr
-add_executable(TestSupportErrorStr TestErrorStrDriver.cpp)
+chip_add_test(TestSupportErrorStr      TestErrorStrDriver.cpp)
 target_link_libraries(TestSupportErrorStr PRIVATE SupportLayerTests)
-add_test(NAME TestSupportErrorStr COMMAND TestSupportErrorStr)
-add_dependencies(check TestSupportErrorStr)
 
-#### TestSupportTimeUtils
-add_executable(TestSupportTimeUtils TestTimeUtilsDriver.cpp)
+chip_add_test(TestSupportTimeUtils     TestTimeUtilsDriver.cpp)
 target_link_libraries(TestSupportTimeUtils PRIVATE SupportLayerTests)
-add_test(NAME TestSupportTimeUtils COMMAND TestSupportTimeUtils)
-add_dependencies(check TestSupportTimeUtils)
 
-#### TestSupportCHIPArgParser
-add_executable(TestSupportCHIPArgParser TestCHIPArgParserDriver.cpp)
+chip_add_test(TestSupportCHIPArgParser TestCHIPArgParserDriver.cpp)
 target_link_libraries(TestSupportCHIPArgParser PRIVATE SupportLayerTests)
-add_test(NAME TestSupportCHIPArgParser COMMAND TestSupportCHIPArgParser)
-add_dependencies(check TestSupportCHIPArgParser)
+
+endif (BUILD_TESTING)

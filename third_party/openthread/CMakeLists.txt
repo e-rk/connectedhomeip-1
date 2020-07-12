@@ -17,15 +17,12 @@
 
 #
 #    Description:
-#      This file is the CMake template for the nlunit-test library.
+#      CMake integration with the OpenThread stack.
 #
 
-add_library(nlunit-test STATIC "")
-target_sources(nlunit-test
-PRIVATE
-    repo/src/nlunit-test.c
-)
-target_include_directories(nlunit-test
-PUBLIC
-    repo/src
-)
+if (CHIP_ENABLE_OPENTHREAD_INTERNAL)
+
+set(OT_BUILD_EXECUTABLES OFF CACHE BOOL "Disable OpenThread samples")
+add_subdirectory(repo EXCLUDE_FROM_ALL)
+
+endif (CHIP_ENABLE_OPENTHREAD_INTERNAL)
