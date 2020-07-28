@@ -21,7 +21,7 @@
 #      and Bluetooth Transport Protocol (BTP) code.
 #
 
-# add_subdirectory(tests)
+add_subdirectory(tests)
 
 chip_add_core_library(BleLayer)
 
