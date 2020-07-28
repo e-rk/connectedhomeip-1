@@ -23,7 +23,7 @@
 #
 # Declare cmake version requirements
 #
-cmake_minimum_required(VERSION 3.16.5)
+cmake_minimum_required(VERSION 3.16.3)
 
 #
 # Specify the top-level project name and the languages used.
@@ -42,28 +42,41 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CHIP_PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root of CHIP SDK source")
 set(CHIP_PROJECT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Root of CHIP SDK build output")
 
+#
+# Define global interface library target for all CHIP library headers.
+#
+# This target is a container for all mandatory CHIP modules. When a library is added
+# with function 'chip_add_core_library', the new library automatically becomes mandatory
+# to all targets and gets automatically linked by means of linking just this single target.
+#
+add_library(ChipCore INTERFACE)
+
 include("${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/extensions.cmake")
 include("${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/options.cmake")
 
-option(CHIP_BUILD_LIBRARY "Build CHIP library" ON)
-
 # Check if chipPlatform target exists
 if (NOT TARGET chipPlatform)
-    # If not, assume we build standalone.
-    include(${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/platforms/standalone/platform.cmake)
+    # If not, assume we build from in-tree default platform.
+    if (NOT DEFINED CHIP_PLATFORM)
+        # If no platform is specified, select standalone.
+        set (CHIP_PLATFORM "standalone" CACHE STRING "CHIP target platform")
+    endif ()
 
-    # Eneble testing for standalone config by default. Including CTest implicitly sets BUILD_TESTING variable to on,
-    # but only if it was not explicitly set to off previously.
-    include(CTest)
-    if (BUILD_TESTING)
-        add_custom_target(check ${CMAKE_CTEST_COMMAND} -V)
-    endif (BUILD_TESTING)
+    include(${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/platforms/${CHIP_PLATFORM}/platform.cmake)
 endif (NOT TARGET chipPlatform)
 
+if (BUILD_TESTING)
+    add_custom_target(check ${CMAKE_CTEST_COMMAND} -V)
+endif (BUILD_TESTING)
+
+# If this is a top-level CMake, we build all elegible examples.
+if (${CMAKE_PROJECT_NAME} STREQUAL "Chip")
 add_subdirectory(examples)
+endif()
+
 add_subdirectory(src)
 add_subdirectory(third_party)
 
 if (CHIP_BUILD_LIBRARY)
-    include(${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/platforms/standalone/composition.cmake)
+    include(${CHIP_PROJECT_SOURCE_DIR}/integrations/cmake/platforms/${CHIP_PLATFORM}/composition.cmake)
 endif ()

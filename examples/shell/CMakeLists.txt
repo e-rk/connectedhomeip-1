@@ -20,11 +20,17 @@
 #      This file is the CMake template for building the CHIP SDK shell example.
 #
 
-cmake_minimum_required(VERSION 3.17.2)
-
+cmake_minimum_required(VERSION 3.16.3)
 project(chip-shell LANGUAGES C CXX)
 
+include(third_party/connectedhomeip/integrations/cmake/extensions.cmake)
+chip_example("" "standalone")
+
+if (NOT TARGET chipPlatform)
+set(CHIP_PLATFORM "standalone")
+option(BUILD_TESTING "Enable tests" OFF)
 add_subdirectory(third_party/connectedhomeip)
+endif ()
 
 add_executable(chip-shell
     cmd_base64.cpp

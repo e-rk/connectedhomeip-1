@@ -122,5 +122,6 @@ chip_add_extra_library(DeviceLayerOpenThread)
 target_sources(DeviceLayerOpenThread INTERFACE
     OpenThread/OpenThreadUtils.cpp
 )
+target_compile_definitions(DeviceLayerOpenThread INTERFACE CHIP_ENABLE_OPENTHREAD=1)
 
 add_subdirectory(tests)

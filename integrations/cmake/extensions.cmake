@@ -47,15 +47,6 @@
 #
 
 #
-# Define global interface library target for all CHIP library headers.
-#
-# This target is a container for all mandatory CHIP modules. When a library is added
-# with function 'chip_add_core_library', the new library automatically becomes mandatory
-# to all targets and gets automatically linked by means of linking just this single target.
-#
-add_library(ChipCore INTERFACE)
-
-#
 # Function for adding obligatory CHIP modules that have to be built for all targets.
 #
 function(chip_add_core_library target_name)
@@ -112,6 +103,8 @@ function(chip_compose_library library_name)
     target_include_directories(${library_name}  PUBLIC  $<TARGET_PROPERTY:${target},INTERFACE_INCLUDE_DIRECTORIES>)
     target_compile_options(${library_name}      PUBLIC  $<TARGET_PROPERTY:${target},INTERFACE_COMPILE_OPTIONS>)
     target_compile_definitions(${library_name}  PUBLIC  $<TARGET_PROPERTY:${target},INTERFACE_COMPILE_DEFINITIONS>)
+    target_link_options(${library_name}         PUBLIC  $<TARGET_PROPERTY:${target},INTERFACE_LINK_OPTIONS>)
+    target_link_directories(${library_name}     PUBLIC  $<TARGET_PROPERTY:${target},INTERFACE_LINK_DIRECTORIES>)
   endforeach()
 endfunction()
 
@@ -131,8 +124,11 @@ endfunction()
 #
 # This macro must be used only in the file scope of the example in order to work properly.
 #
-macro(chip_example TOOLCHAIN PLATFORM)
-  if (CHIP_PLATFORM AND NOT PLATFORM STREQUAL CHIP_PLATFORM)
+macro(chip_example TRIPLET PLATFORM)
+  if (NOT "${TRIPLET}" STREQUAL "${TARGET_TRIPLET}")
+    return()
+  endif()
+  if (CHIP_PLATFORM AND NOT "${PLATFORM}" STREQUAL "${CHIP_PLATFORM}")
     return()
   endif()
 endmacro()

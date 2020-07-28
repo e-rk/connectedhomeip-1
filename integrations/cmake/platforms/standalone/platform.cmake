@@ -51,3 +51,12 @@ set(CHIP_BUILD_TOOLS 1)
 set(CHIP_ENABLE_OPENTHREAD_INTERNAL 1)
 set(CHIP_ENABLE_LWIP_INTERNAL 1)
 set(CHIP_TARGET_STYLE_UNIX 1)
+
+# Enable testing for standalone config by default. Including CTest implicitly sets BUILD_TESTING variable to on,
+# but only if it was not explicitly set to off previously.
+include(CTest)
+
+#
+# Enable CHIP library build by default for standalone target.
+#
+option(CHIP_BUILD_LIBRARY "Build CHIP library" ON)

@@ -29,7 +29,8 @@ set(TARGET_TRIPLET          "arm-none-eabi"                 CACHE INTERNAL "Targ
 set(CMAKE_C_COMPILER        "${ARM_GCC_INSTALL_ROOT}${TARGET_TRIPLET}-gcc")
 set(CMAKE_CXX_COMPILER      "${ARM_GCC_INSTALL_ROOT}${TARGET_TRIPLET}-g++")
 set(CMAKE_ASM_COMPILER      "${ARM_GCC_INSTALL_ROOT}${TARGET_TRIPLET}-gcc")
-set(CMAKE_LINKER            "${ARM_GCC_INSTALL_ROOT}${TARGET_TRIPLET}-ld")
+set(CMAKE_LINKER            "${ARM_GCC_INSTALL_ROOT}${TARGET_TRIPLET}-gcc")
+set(CMAKE_OBJCOPY           "${ARM_GCC_INSTALL_ROOT}${TARGET_TRIPLET}-objcopy")
 
 # --specs is needed to pass toolchain checks. It can be overwritten later.
 set(CMAKE_EXE_LINKER_FLAGS "--specs=nosys.specs" CACHE INTERNAL "Linker flags")
