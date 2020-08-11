@@ -23,39 +23,46 @@
 
 add_subdirectory(tests)
 
+# Library body.
 add_library(ChipCrypto STATIC "")
-target_include_directories(ChipCrypto
-PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
 target_link_libraries(ChipCrypto
 PUBLIC
     ChipConfig
     SupportLayer
 )
 
+# CHIP configuration.
 add_library(ChipCryptoConfig INTERFACE)
 target_link_libraries(ChipConfig INTERFACE ChipCryptoConfig)
 
+#
+# OpenSSL crypto variant
+#
 if ("${CHIP_CRYPTO}" STREQUAL "openssl")
-
-find_package(OpenSSL REQUIRED)
 
 target_sources(ChipCrypto
 PRIVATE
     CHIPCryptoPALOpenSSL.cpp
-)
-target_link_libraries(ChipCrypto
-PUBLIC
-    OpenSSL::SSL
 )
 target_compile_definitions(ChipCryptoConfig
 INTERFACE
     CHIP_CRYPTO_OPENSSL=1
 )
 
-endif ()
+#
+# Find OpenSSL and add it to usage requirements.
+#
+find_package(OpenSSL REQUIRED)
+target_link_libraries(ChipCrypto
+PUBLIC
+    OpenSSL::SSL
+)
 
+endif ("${CHIP_CRYPTO}" STREQUAL "openssl")
+
+#
+# MbedTLS crypto variant
+#
 if ("${CHIP_CRYPTO}" STREQUAL "mbedtls")
 
 target_sources(ChipCrypto
@@ -66,6 +73,12 @@ target_compile_definitions(ChipCryptoConfig
 INTERFACE
     CHIP_CRYPTO_MBEDTLS=1
 )
-# target_link_libraries() mbedtls
 
+#
+# If we use the builtin mbedTLS, add it to the usage requirements.
+#
+if (CHIP_CONFIG_ENABLE_BUILTING_MBEDTLS)
+target_link_libraries(ChipCrypto PUBLIC mbedtls)
 endif ()
+
+endif ("${CHIP_CRYPTO}" STREQUAL "mbedtls")

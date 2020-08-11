@@ -20,13 +20,17 @@
 #      This file is the CMake template for the mbedtls library.
 #
 
-add_library(chipMbedTLSInternal INTERFACE)
+if (CHIP_CONFIG_ENABLE_BUILTING_MBEDTLS)
 
-target_include_directories(chipMbedTLSInternal INTERFACE
+add_library(mbedtls STATIC "")
+
+target_include_directories(mbedtls
+PUBLIC
     repo/include
 )
 
-target_sources(chipMbedTLSInternal INTERFACE
+target_sources(mbedtls
+PRIVATE
     repo/library/aes.c
     repo/library/aesni.c
     repo/library/arc4.c
@@ -94,3 +98,5 @@ target_sources(chipMbedTLSInternal INTERFACE
     repo/library/xtea.c
     repo/library/timing.c
 )
+
+endif (CHIP_CONFIG_ENABLE_BUILTING_MBEDTLS)

@@ -28,3 +28,4 @@ set(CHIP_CONFIG_NETWORK_LAYER_INET      TRUE                         CACHE BOOL 
 set(CHIP_CONFIG_NETWORK_LAYER_BLE       FALSE                        CACHE BOOL   "Enable BLE layer")
 set(INET_CONFIG_ENABLE_UDP_ENDPOINT     TRUE                         CACHE BOOL   "Enable UDP endpoint")
 set(CHIP_ENABLE_OPENTHREAD              TRUE                         CACHE BOOL   "Enable OpenThread")
+set(CHIP_CONFIG_ENABLE_BUILTING_MBEDTLS FALSE                        CACHE BOOL   "Enable builtin mbedTLS")
