@@ -29,3 +29,7 @@ target_include_directories(nlunit-test
 PUBLIC
     repo/src
 )
+target_link_libraries(nlunit-test
+PUBLIC
+    ChipConfig
+)

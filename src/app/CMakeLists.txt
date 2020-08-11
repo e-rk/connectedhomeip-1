@@ -27,11 +27,12 @@ add_library(ChipDataModel STATIC "")
 
 target_sources(ChipDataModel
 PRIVATE
+    chip-zcl-zpro/command-encoder/encoder.c
+    chip-zcl-zpro/command-encoder/decoder.c
     gen/gen-callback-stubs.c
     gen/gen-command-handler.c
     gen/gen-global-command-handler.c
     gen/gen-specs.c
-    plugin/binding-chip/chip.cpp
     plugin/cluster-server-basic/basic-server.c
     plugin/cluster-server-identify/identify-server.c
     plugin/cluster-server-level-control/level-control-server.c
@@ -51,4 +52,27 @@ target_link_libraries(ChipDataModel
 PUBLIC
     ChipConfig
     SystemLayer
+)
+
+if (CHIP_DATA_MODEL_MOCK)
+target_sources(ChipDataModel
+PRIVATE
+    plugin/binding-mock/mock.c
+)
+else ()
+target_sources(ChipDataModel
+PRIVATE
+    plugin/binding-chip/chip.cpp
+)
+endif ()
+
+target_link_libraries(CHIP
+INTERFACE
+    ChipDataModel
+)
+
+file(
+    COPY "${CMAKE_CURRENT_SOURCE_DIR}/chip-zcl-zpro/command-encoder/chip-zcl-zpro-codec.h"
+    DESTINATION "${CMAKE_BINARY_DIR}/include/chip-zcl"
+    FOLLOW_SYMLINK_CHAIN
 )

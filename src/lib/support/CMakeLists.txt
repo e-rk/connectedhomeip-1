@@ -49,6 +49,7 @@ PRIVATE
 )
 target_link_libraries(SupportLayer
 PUBLIC
+    ChipConfig
     nlassert
 )
 
@@ -62,4 +63,26 @@ PUBLIC
 )
 endif ()
 
-target_link_libraries(SupportLayer PUBLIC ChipConfig)
+set(CHIP_SUPPORT_HEADERS
+    ${CMAKE_CURRENT_SOURCE_DIR}/Base64.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/BufBound.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPCounter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/CodeUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/DLLUtil.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/ErrorStr.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/FibonacciUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/PersistedCounter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/RandUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/TestUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/TimeUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/logging/CHIPLogging.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/verhoeff/Verhoeff.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/CHIPMem.h
+)
+
+foreach (copy_file IN LISTS CHIP_SUPPORT_HEADERS)
+    file(COPY ${copy_file}
+         DESTINATION "${CMAKE_BINARY_DIR}/include/support"
+         FOLLOW_SYMLINK_CHAIN
+    )
+endforeach ()

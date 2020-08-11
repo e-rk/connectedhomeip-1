@@ -20,7 +20,7 @@
 #      This file is the CMake template for the mbedtls library.
 #
 
-if (CHIP_CONFIG_ENABLE_BUILTING_MBEDTLS)
+if (CHIP_CONFIG_ENABLE_BUILTIN_MBEDTLS)
 
 add_library(mbedtls STATIC "")
 
@@ -99,4 +99,4 @@ PRIVATE
     repo/library/timing.c
 )
 
-endif (CHIP_CONFIG_ENABLE_BUILTING_MBEDTLS)
+endif (CHIP_CONFIG_ENABLE_BUILTIN_MBEDTLS)

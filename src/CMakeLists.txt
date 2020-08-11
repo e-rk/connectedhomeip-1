@@ -20,10 +20,16 @@
 #      This file is the CMake template for the CHIP SDK source code.
 #
 
-add_subdirectory(include)
+add_library(CHIP INTERFACE)
+target_link_libraries(CHIP
+INTERFACE
+    ChipConfig
+)
 
+add_subdirectory(include)
 add_subdirectory(app)
 add_subdirectory(ble)
+add_subdirectory(controller)
 add_subdirectory(crypto)
 add_subdirectory(inet)
 add_subdirectory(lib)
@@ -33,20 +39,12 @@ add_subdirectory(transport)
 add_subdirectory(platform)
 add_subdirectory(setup_payload)
 add_subdirectory(qrcodetool)
-
-add_library(CHIP INTERFACE)
-target_link_libraries(CHIP
-INTERFACE
-    SystemLayer
-    InetLayer
-    SupportLayer
-    ChipConfig
-)
+add_subdirectory(test_driver)
 
 target_include_directories(ChipConfig
 INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/lib
-    ${CMAKE_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}/include
 )

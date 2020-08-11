@@ -113,4 +113,6 @@ if (INET_PLATFORM_CONFIG_INCLUDE)
 target_compile_definitions(InetLayerConfig INTERFACE INET_PLATFORM_CONFIG_INCLUDE=${INET_PLATFORM_CONFIG_INCLUDE})
 endif ()
 
+target_link_libraries(CHIP INTERFACE InetLayer)
+
 endif (CHIP_CONFIG_NETWORK_LAYER_INET)

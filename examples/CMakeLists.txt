@@ -21,7 +21,6 @@
 #      CMakeLists.txt that just include more subdirectories, we add them directly here.
 #
 
+chip_add_example("${CMAKE_HOST_SYSTEM_NAME}" chip-tool           ${CMAKE_CURRENT_SOURCE_DIR}/chip-tool)
 chip_add_example("${CMAKE_HOST_SYSTEM_NAME}" shell-native        ${CMAKE_CURRENT_SOURCE_DIR}/shell)
-chip_add_example("nrf52840"                  lighting-app-nrf5   ${CMAKE_CURRENT_SOURCE_DIR}/lighting-app/nrf5)
-chip_add_example("nrf52840"                  lock-app-nrf5       ${CMAKE_CURRENT_SOURCE_DIR}/lock-app/nrf5)
 chip_add_example("nrfconnect"                lock-app-nrfconnect ${CMAKE_CURRENT_SOURCE_DIR}/lock-app/nrfconnect)

@@ -23,6 +23,7 @@
 if (CHIP_ENABLE_OPENTHREAD_INTERNAL)
 
 set(OT_BUILD_EXECUTABLES OFF CACHE BOOL "Disable OpenThread samples")
+set(OT_EXTERNAL_MBEDTLS  ON  CACHE BOOL "Disable mbedTLS in OpenThread")
 add_subdirectory(repo EXCLUDE_FROM_ALL)
 
 endif (CHIP_ENABLE_OPENTHREAD_INTERNAL)

@@ -25,11 +25,16 @@ add_subdirectory(tests)
 
 # Library body.
 add_library(ChipCrypto STATIC "")
+target_sources(ChipCrypto
+PUBLIC
+    CHIPCryptoPAL.cpp
+)
 target_link_libraries(ChipCrypto
 PUBLIC
     ChipConfig
     SupportLayer
 )
+
 
 # CHIP configuration.
 add_library(ChipCryptoConfig INTERFACE)
@@ -77,7 +82,7 @@ INTERFACE
 #
 # If we use the builtin mbedTLS, add it to the usage requirements.
 #
-if (CHIP_CONFIG_ENABLE_BUILTING_MBEDTLS)
+if (CHIP_CONFIG_ENABLE_BUILTIN_MBEDTLS)
 target_link_libraries(ChipCrypto PUBLIC mbedtls)
 endif ()
 

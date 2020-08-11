@@ -22,8 +22,8 @@
 
 add_custom_target(ChipVersionHeader
     ${CHIP_PROJECT_SOURCE_DIR}/scripts/gen-chip-version.sh -o CHIPVersion.h `cat ${CHIP_PROJECT_SOURCE_DIR}/.default-version`
-    BYPRODUCTS ${CMAKE_BINARY_DIR}/CHIPVersion.h
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    BYPRODUCTS ${CMAKE_BINARY_DIR}/include/CHIPVersion.h
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/include
     DEPENDS ${CHIP_PROJECT_SOURCE_DIR}/.default-version
 )
 add_dependencies(ChipConfig ChipVersionHeader)

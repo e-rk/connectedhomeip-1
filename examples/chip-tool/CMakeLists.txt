@@ -20,21 +20,9 @@
 #      This file is the CMake template for building the chip-tool executable.
 #
 
-cmake_minimum_required(VERSION 3.16.3)
-project(chip-shell LANGUAGES C CXX)
-
-include(third_party/connectedhomeip/integrations/cmake/extensions.cmake)
-chip_example("" "standalone")
-
-if (NOT TARGET chipPlatform)
-set(CHIP_PLATFORM "standalone")
-option(BUILD_TESTING "Enable tests" OFF)
-add_subdirectory(third_party/connectedhomeip)
-endif ()
-
-add_executable(chip-tool
-    main.cpp
-)
-target_link_libraries(chip-tool PRIVATE
+add_executable(chip-tool main.cpp)
+target_link_libraries(chip-tool
+PRIVATE
+    ChipConfig
     CHIP
 )

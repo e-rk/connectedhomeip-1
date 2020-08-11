@@ -35,5 +35,7 @@ target_link_libraries(TransportLayer
 PUBLIC
     ChipConfig
     SupportLayer
+    ChipCrypto
     nlio
 )
+target_link_libraries(CHIP INTERFACE TransportLayer)

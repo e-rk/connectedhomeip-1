@@ -27,10 +27,11 @@ set(CHIP_TARGET_STYLE_UNIX 1)
 
 # Reasonable defaults. These can be overwritten with command line parameters.
 set(CHIP_DEVICE_LAYER                    "${CMAKE_HOST_SYSTEM_NAME}"  CACHE STRING "CHIP platform")
-set(CHIP_CRYPTO                          "openssl"                    CACHE STRING "Cryptography library")
+set(CHIP_CRYPTO                          "mbedtls"                    CACHE STRING "Cryptography library")
 set(CHIP_SYSTEM_CONFIG_USE_SOCKETS       TRUE                         CACHE BOOL   "Use socket network layer")
 set(CHIP_CONFIG_NETWORK_LAYER_INET       TRUE                         CACHE BOOL   "Enable Inet layer")
 set(CHIP_CONFIG_NETWORK_LAYER_BLE        FALSE                        CACHE BOOL   "Enable BLE layer")
 set(INET_CONFIG_ENABLE_UDP_ENDPOINT      TRUE                         CACHE BOOL   "Enable UDP endpoint")
 set(CHIP_CONFIG_OT_BR_POSIX              TRUE                         CACHE BOOL   "Enable builtin ot-br-posix")
-set(CHIP_CONFIG_ENABLE_BUILTING_MBEDTLS  FALSE                        CACHE BOOL   "Enable builtin mbedTLS")
+set(CHIP_CONFIG_ENABLE_BUILTIN_MBEDTLS   TRUE                         CACHE BOOL   "Enable builtin mbedTLS")
+set(CHIP_CONFIG_ENABLE_CHIP_CONTROLLER   TRUE                         CACHE BOOL   "Enable device controller")

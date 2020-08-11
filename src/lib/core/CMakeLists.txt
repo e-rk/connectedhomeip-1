@@ -45,3 +45,5 @@ PUBLIC
     SystemLayer
     nlio
 )
+
+target_link_libraries(CHIP INTERFACE Core)

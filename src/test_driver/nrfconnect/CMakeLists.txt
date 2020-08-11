@@ -30,82 +30,54 @@
 # - inet/CMakeLists.txt     <- build and run only inet tests
 # - ...
 
-cmake_minimum_required(VERSION 3.13.1)
+cmake_minimum_required(VERSION 3.16.3)
+include(third_party/connectedhomeip/integrations/cmake/extensions.cmake)
+chip_example("" "nrfconnect")
 
-set(CHIP_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/third_party/connectedhomeip)
-get_filename_component(CHIP_ROOT ${CHIP_ROOT} REALPATH)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CHIP_ROOT}/config/nrfconnect/)
+set(CHIP_ROOT third_party/connectedhomeip)
 
 # Make sure all components can see our mbedtls config
 include_directories(AFTER ${CMAKE_CURRENT_SOURCE_DIR}/main/include)
+
+# Default platform
+set(BOARD "native_posix" CACHE STRING "Zephyr platform")
 
 # ==================================================
 # Load NCS/Zephyr build system
 # ==================================================
 find_package(Zephyr HINTS $ENV{ZEPHYR_BASE})
 
+project(AllChipTests)
+
 # ==================================================
 # General settings
 # ==================================================
-
-include(chip-lib)
-
-set(CHIP_COMMON_FLAGS
-    -D_SYS__PTHREADTYPES_H_
-    -DCHIP_SYSTEM_CONFIG_USE_ZEPHYR_SOCKET_EXTENSIONS=0
-    -DCHIP_SYSTEM_CONFIG_USE_ZEPHYR_NET_IF=0
-    -DCHIP_SYSTEM_CONFIG_USE_BSD_IFADDRS=1
-    -I${CMAKE_CURRENT_SOURCE_DIR}/main/include
-    -isystem${ZEPHYR_BASE}/../modules/crypto/mbedtls/configs
-    -include undef_main.h
+add_library(chipPlatform ALIAS app)
+target_compile_definitions(app
+PUBLIC
+    _SYS__PTHREADTYPES_H_
+    CHIP_SYSTEM_CONFIG_USE_ZEPHYR_SOCKET_EXTENSIONS=0
+    CHIP_SYSTEM_CONFIG_USE_ZEPHYR_NET_IF=0
+    CHIP_SYSTEM_CONFIG_USE_BSD_IFADDRS=1
+    WEAVE_SYSTEM_CONFIG_PROVIDE_STATISTICS=1
 )
 
-set(CHIP_OUTPUT_LIBRARIES
-    ${CHIP_OUTPUT_DIR}/lib/libCHIP.a
-    ${CHIP_OUTPUT_DIR}/lib/libInetLayer.a
-    ${CHIP_OUTPUT_DIR}/lib/libSystemLayer.a
-    ${CHIP_OUTPUT_DIR}/lib/libSupportLayer.a
-    ${CHIP_OUTPUT_DIR}/lib/libBleLayer.a
-    ${CHIP_OUTPUT_DIR}/lib/libDeviceLayer.a
-    ${CHIP_OUTPUT_DIR}/lib/libCHIPDataModel.a
-    ${CHIP_OUTPUT_DIR}/lib/libnlunit-test.a
-    ${CHIP_OUTPUT_DIR}/lib/libnlfaultinjection.a
+set(CHIP_ENABLE_OPENTHREAD FALSE CACHE BOOL "Enable OpenThread")
+
+add_subdirectory(${CHIP_ROOT})
+
+target_link_libraries(app PRIVATE
+    CryptoLayerTests
+    CoreTests
+    SystemLayerTests
+    TransportLayerTests
+    PlatformTests
+    SupportTests
 )
 
-set(CHIP_OUTPUT_TESTS
-    -lSupportTests
-    -lCoreTests
-    -lSystemLayerTests
-    -lTransportLayerTests
-    -lCryptoLayerTests
-    -lPlatformTests
-)
-
-# ==================================================
-# Setup CHIP build (including unit tests)
-# ==================================================
-
-chip_configure(ChipConfig
-    BUILD_TESTS
-    PROJECT_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/main/include/CHIPProjectConfig.h
-    CFLAGS ${CHIP_COMMON_FLAGS}
-    CXXFLAGS ${CHIP_COMMON_FLAGS}
-)
-
-chip_build(ChipLib ChipConfig
-    BUILD_COMMAND make --no-print-directory V=${CMAKE_AUTOGEN_VERBOSE} install-headers install-exec
-    BUILD_ARTIFACTS ${CHIP_OUTPUT_LIBRARIES}
-)
-
-# ==================================================
-# Build 'all tests' runner
-# ==================================================
-project(AllChipTests)
 enable_testing()
 
 target_compile_definitions(app PRIVATE HAVE_CONFIG_H)
 target_sources(app PRIVATE main/runner.cpp)
-target_link_options(app PUBLIC -Wl,--whole-archive ${CHIP_OUTPUT_TESTS} -Wl,--no-whole-archive)
-target_link_libraries(app PUBLIC ChipLib $<TARGET_FILE:kernel>)
 
 add_test(AllChipTests zephyr/zephyr.exe)

@@ -43,7 +43,6 @@ PUBLIC
 add_library(DeviceLayerConfig INTERFACE)
 target_link_libraries(ChipConfig INTERFACE DeviceLayerConfig)
 
-
 #
 # Linux target
 #
@@ -60,8 +59,6 @@ PRIVATE
     Linux/PlatformManagerImpl.cpp
     Linux/PosixConfig.cpp
     Linux/SystemTimeSupport.cpp
-    Linux/ThreadStackManagerImpl.cpp
-    ${COMMON_SOURCES}
 )
 target_compile_definitions(DeviceLayerConfig
 INTERFACE
@@ -79,40 +76,8 @@ INTERFACE
     HAVE_NETINET_ICMP6_H=1
     HAVE_ICMP6_FILTER=1
 )
-endif ()
 
-#
-# nRF5 target
-#
-if ("${CHIP_DEVICE_LAYER}" STREQUAL "nrf52840")
-
-target_sources(DeviceLayer
-PRIVATE
-    nRF5/BLEManagerImpl.cpp
-    nRF5/ConfigurationManagerImpl.cpp
-    nRF5/ConnectivityManagerImpl.cpp
-    nRF5/PlatformManagerImpl.cpp
-    nRF5/nRF5Config.cpp
-    nRF5/nRF5Utils.cpp
-    nRF5/Logging.cpp
-    nRF5/ThreadStackManagerImpl.cpp
-    FreeRTOS/SystemTimeSupport.cpp
-    ${COMMON_SOURCES}
-)
-target_compile_definitions(DeviceLayerConfig
-INTERFACE
-    BLE_PLATFORM_CONFIG_INCLUDE=<platform/nRF5/BlePlatformConfig.h>
-    INET_PLATFORM_CONFIG_INCLUDE=<platform/nRF5/InetPlatformConfig.h>
-    SYSTEM_PLATFORM_CONFIG_INCLUDE=<platform/nRF5/SystemPlatformConfig.h>
-    CHIP_PLATFORM_CONFIG_INCLUDE=<platform/nRF5/CHIPPlatformConfig.h>
-    CHIP_DEVICE_PLATFORM_CONFIG_INCLUDE=<platform/nRF5/CHIPDevicePlatformConfig.h>
-    CHIP_DEVICE_LAYER_TARGET=nRF5
-    CHIP_DEVICE_LAYER_TARGET_NRF5=1
-    CHIP_LOGGING_STYLE_EXTERNAL=1
-    CHIP_TARGET_STYLE_EMBEDDED=1
-)
-
-endif ()
+endif ("${CHIP_DEVICE_LAYER}" STREQUAL "Linux")
 
 #
 # nRF Connect SDK target
@@ -127,9 +92,7 @@ PRIVATE
     nrfconnect/PlatformManagerImpl.cpp
     nrfconnect/ZephyrConfig.cpp
     nrfconnect/Logging.cpp
-    nrfconnect/ThreadStackManagerImpl.cpp
     Zephyr/SystemTimeSupport.cpp
-    ${COMMON_SOURCES}
 )
 target_compile_definitions(DeviceLayerConfig
 INTERFACE
@@ -145,18 +108,22 @@ INTERFACE
     HAVE_GETTIMEOFDAY=1
 )
 
-endif ()
+endif ("${CHIP_DEVICE_LAYER}" STREQUAL "nrfconnect")
 
 if (CHIP_ENABLE_OPENTHREAD)
 
 target_sources(DeviceLayer
 PRIVATE
     OpenThread/OpenThreadUtils.cpp
+    ${CHIP_PLATFORM}/ThreadStackManagerImpl.cpp
 )
 target_compile_definitions(DeviceLayerConfig
 INTERFACE
-    CHIP_ENABLE_OPENTHREAD=1)
+    CHIP_ENABLE_OPENTHREAD=1
+)
 
 endif ()
+
+target_link_libraries(CHIP INTERFACE DeviceLayer)
 
 add_subdirectory(tests)

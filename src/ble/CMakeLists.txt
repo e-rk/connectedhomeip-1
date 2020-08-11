@@ -45,7 +45,13 @@ target_compile_definitions(BleLayerConfig
 INTERFACE
     CONFIG_NETWORK_LAYER_BLE=1
 )
-
-target_link_libraries(ChipConfig INTERFACE BleLayerConfig)
+target_link_libraries(ChipConfig
+INTERFACE
+    BleLayerConfig
+)
+target_link_libraries(CHIP
+INTERFACE
+    BleLayer
+)
 
 endif ()
